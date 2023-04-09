@@ -1,49 +1,57 @@
 package main
 
 import (
+	"image"
 	"image/color"
 	"log"
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/text"
-	"gioui.org/widget/material"
+	"gioui.org/op/paint"
+	"gioui.org/unit"
 )
 
 func main() {
 	go func() {
-		w := app.NewWindow()
-		err := run(w)
-		if err != nil {
+		w := app.NewWindow(
+			app.Title("Canvas"),
+			app.Size(unit.Dp(650), unit.Dp(600)),
+		)
+
+		if err := draw(w); err != nil {
 			log.Fatal(err)
 		}
 		os.Exit(0)
 	}()
+
 	app.Main()
 }
 
-func run(w *app.Window) error {
-	th := material.NewTheme(gofont.Collection())
+func draw(w *app.Window) error {
 	var ops op.Ops
-	for {
-		e := <-w.Events()
-		switch e := e.(type) {
-		case system.DestroyEvent:
-			return e.Err
+
+	for windowEvent := range w.Events() {
+		switch e := windowEvent.(type) {
+
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
+			paint.Fill(&ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 0xff})
 
-			title := material.H1(th, "Hello, Gio")
-			maroon := color.NRGBA{R: 127, G: 0, B: 0, A: 255}
-			title.Color = maroon
-			title.Alignment = text.Middle
-			title.Layout(gtx)
+			bv := new(ButtonVisual)
+			bv.Layout(gtx)
+
+			op.Offset(image.Point{X: 0, Y: 200}).Add(&ops)
+
+			bv.Layout(gtx)
 
 			e.Frame(gtx.Ops)
+		case system.DestroyEvent:
+			return e.Err
+
 		}
 	}
+	return nil
 }
