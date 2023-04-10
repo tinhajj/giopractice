@@ -32,25 +32,27 @@ func main() {
 
 func draw(w *app.Window) error {
 	var ops op.Ops
+	bv := new(ButtonVisual)
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
 
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
+
+			op.Offset(image.Point{X: 10, Y: 10}).Add(&ops)
+
 			paint.Fill(&ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 0xff})
 
-			bv := new(ButtonVisual)
 			bv.Layout(gtx)
-
 			op.Offset(image.Point{X: 0, Y: 200}).Add(&ops)
-
 			bv.Layout(gtx)
+
+			//bv.Layout(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
 			return e.Err
-
 		}
 	}
 	return nil
