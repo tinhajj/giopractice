@@ -32,7 +32,17 @@ func main() {
 
 func draw(w *app.Window) error {
 	var ops op.Ops
-	bv := new(ButtonVisual)
+	bv1 := &ButtonVisual{
+		roundness: 2,
+		pressed:   false,
+		tag:       new(bool),
+	}
+
+	bv2 := &ButtonVisual{
+		roundness: 0,
+		pressed:   false,
+		tag:       new(bool),
+	}
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
@@ -44,11 +54,9 @@ func draw(w *app.Window) error {
 
 			paint.Fill(&ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 0xff})
 
-			bv.Layout(gtx)
+			bv1.Layout(gtx)
 			op.Offset(image.Point{X: 0, Y: 200}).Add(&ops)
-			bv.Layout(gtx)
-
-			//bv.Layout(gtx)
+			bv2.Layout(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
