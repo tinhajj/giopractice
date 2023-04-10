@@ -44,6 +44,8 @@ func draw(w *app.Window) error {
 		tag:       new(bool),
 	}
 
+	window := Window{tag: new(bool)}
+
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
 
@@ -57,6 +59,8 @@ func draw(w *app.Window) error {
 			bv1.Layout(gtx)
 			op.Offset(image.Point{X: 0, Y: 200}).Add(&ops)
 			bv2.Layout(gtx)
+			op.Offset(image.Point{X: 0, Y: 200}).Add(&ops)
+			window.Layout(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
