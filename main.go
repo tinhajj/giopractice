@@ -36,12 +36,16 @@ func draw(w *app.Window) error {
 		roundness: 2,
 		pressed:   false,
 		tag:       new(bool),
+		width:     0,
+		height:    0,
 	}
 
 	bv2 := &ButtonVisual{
 		roundness: 0,
 		pressed:   false,
 		tag:       new(bool),
+		width:     0,
+		height:    510,
 	}
 
 	window := Window{tag: new(bool)}
@@ -58,9 +62,9 @@ func draw(w *app.Window) error {
 
 			bv1.Layout(gtx)
 			op.Offset(image.Point{X: 0, Y: 200}).Add(&ops)
-			bv2.Layout(gtx)
+			//bv2.Layout(gtx)
 			op.Offset(image.Point{X: 0, Y: 200}).Add(&ops)
-			window.Layout(gtx)
+			window.Layout(gtx, bv2.Layout)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:

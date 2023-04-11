@@ -16,6 +16,8 @@ type ButtonVisual struct {
 	roundness int
 	pressed   bool
 	tag       *bool
+	width     int
+	height    int
 }
 
 func (b *ButtonVisual) Layout(gtx layout.Context) layout.Dimensions {
@@ -42,8 +44,21 @@ func (b *ButtonVisual) drawSquare(ops *op.Ops, q event.Queue, baseColor color.NR
 	}
 
 	// Confine the area of interest to a 100x100 rectangle.
+	w := 0
+	h := 0
+	if b.width == 0 {
+		w = 100
+	} else {
+		w = b.width
+	}
+
+	if b.height == 0 {
+		h = 100
+	} else {
+		h = b.height
+	}
 	defer clip.RRect{
-		Rect: image.Rectangle{Max: image.Pt(100, 100)},
+		Rect: image.Rectangle{Max: image.Pt(w, h)},
 		SE:   b.roundness,
 		SW:   b.roundness,
 		NW:   b.roundness,

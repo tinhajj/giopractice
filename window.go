@@ -9,7 +9,6 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
-	"gioui.org/op/paint"
 	"gioui.org/widget"
 )
 
@@ -44,11 +43,10 @@ func (w *Window) draw(ops *op.Ops, q event.Queue, gtx layout.Context, widge layo
 	}
 
 	return border.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-		// Confine the area of interest to a 100x100 rectangle.
 		defer clip.RRect{
 			Rect: image.Rectangle{
 				Min: image.Point{},
-				Max: image.Pt(100, 100),
+				Max: image.Pt(500, 500),
 			},
 			SE: 2,
 			SW: 2,
@@ -56,8 +54,7 @@ func (w *Window) draw(ops *op.Ops, q event.Queue, gtx layout.Context, widge layo
 			NE: 2,
 		}.Push(ops).Pop()
 
-		paint.ColorOp{Color: color.NRGBA{G: 0xFF, A: 0xFF}}.Add(ops)
-		paint.PaintOp{}.Add(ops)
+		widge(gtx)
 		return layout.Dimensions{Size: image.Pt(500, 500)}
 	})
 }
