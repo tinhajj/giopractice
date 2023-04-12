@@ -35,7 +35,7 @@ func (w *Window) draw(ops *op.Ops, q event.Queue, gtx layout.Context) layout.Dim
 	}
 
 	gtx.Constraints.Min = image.Point{X: 0, Y: 0}
-	gtx.Constraints.Max = image.Point{X: 300, Y: 300}
+	gtx.Constraints.Max = image.Point{X: 100, Y: 199}
 
 	border := widget.Border{
 		Color: color.NRGBA{

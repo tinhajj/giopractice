@@ -81,5 +81,5 @@ func (b *ButtonVisual) drawSquare(ops *op.Ops, q event.Queue, baseColor color.NR
 	}
 	paint.ColorOp{Color: c}.Add(ops)
 	paint.PaintOp{}.Add(ops)
-	return layout.Dimensions{Size: image.Pt(100, 100)}
+	return layout.Dimensions{Size: image.Pt(w, h)}
 }

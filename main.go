@@ -59,6 +59,15 @@ func draw(w *app.Window) error {
 		height:    510,
 	}
 
+	/*
+		bv4 := &ButtonVisual{
+			roundness: 0,
+			pressed:   false,
+			tag:       new(bool),
+			width:     500,
+			height:    510,
+		}*/
+
 	th := material.NewTheme(gofont.Collection())
 
 	window := Window{
@@ -86,7 +95,7 @@ func draw(w *app.Window) error {
 
 			op.Offset(image.Point{X: 0, Y: 200}).Add(&ops)
 
-			bv3.Layout(gtx)
+			//bv3.Layout(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
