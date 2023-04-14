@@ -23,26 +23,46 @@ func Button(th *material.Theme, clickable *widget.Clickable, label string) Butto
 
 func (b ButtonStyle) Layout(gtx layout.Context) layout.Dimensions {
 	return b.Button.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-		defer clip.UniformRRect(image.Rectangle{
-			Min: image.Point{},
-			Max: gtx.Constraints.Min,
-		}, 2).Push(gtx.Ops).Pop()
+		return layout.Inset{
+			Top:    10,
+			Bottom: 10,
+			Left:   10,
+			Right:  10,
+		}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+			defer clip.UniformRRect(image.Rectangle{
+				Min: image.Point{},
+				Max: gtx.Constraints.Max,
+			}, 2).Push(gtx.Ops).Pop()
 
-		paint.Fill(gtx.Ops, color.NRGBA{
-			R: 0,
-			G: 0,
-			B: 255,
-			A: 255,
+			var c color.NRGBA
+
+			if b.Button.Pressed() {
+				c = color.NRGBA{
+					R: 0,
+					G: 0,
+					B: 255,
+					A: 255,
+				}
+			} else {
+				c = color.NRGBA{
+					R: 0,
+					G: 0,
+					B: 255,
+					A: 150,
+				}
+			}
+
+			paint.Fill(gtx.Ops, c)
+
+			colMacro := op.Record(gtx.Ops)
+			paint.ColorOp{Color: color.NRGBA{R: 255, A: 255}}.Add(gtx.Ops)
+
+			widget.Label{}.Layout(gtx, b.Theme.Shaper, b.Font, 30, b.Label, colMacro.Stop())
+			return layout.Dimensions{
+				Size:     gtx.Constraints.Min,
+				Baseline: 0,
+			}
 		})
-
-		colMacro := op.Record(gtx.Ops)
-		paint.ColorOp{Color: color.NRGBA{R: 255, A: 255}}.Add(gtx.Ops)
-
-		widget.Label{}.Layout(gtx, b.Theme.Shaper, b.Font, 30, b.Label, colMacro.Stop())
-		return layout.Dimensions{
-			Size:     gtx.Constraints.Min,
-			Baseline: 0,
-		}
 	})
 }
 

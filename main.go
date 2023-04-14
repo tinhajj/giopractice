@@ -51,8 +51,8 @@ func draw(w *app.Window) error {
 			}
 
 			gtx.Constraints.Max = image.Point{
-				X: 100,
-				Y: 100,
+				X: 200,
+				Y: 200,
 			}
 
 			op.Offset(image.Point{X: 10, Y: 10}).Add(&ops)
