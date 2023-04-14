@@ -44,23 +44,30 @@ func draw(w *app.Window) error {
 
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
-
-			gtx.Constraints.Min = image.Point{
-				X: 100,
-				Y: 100,
-			}
-
-			gtx.Constraints.Max = image.Point{
-				X: 200,
-				Y: 200,
-			}
-
 			op.Offset(image.Point{X: 10, Y: 10}).Add(&ops)
+
+			gtx.Constraints = layout.Constraints{
+				Min: image.Point{
+					X: 100,
+					Y: 100,
+				},
+				Max: image.Point{
+					X: 600,
+					Y: 300,
+				},
+			}
+
 			paint.Fill(&ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 0xff})
 
-			theme.Button(th, &c, "Click me, click me").Layout(gtx)
-			op.Offset(image.Point{X: 100, Y: 100}).Add(&ops)
-			material.Button(th, &c, "Click me, click me, click me, click me, click me").Layout(gtx)
+			layout.Stack{}.Layout(gtx,
+				layout.Expanded(func(gtx layout.Context) layout.Dimensions {
+					return theme.Button(th, &c, "Click me, click me").Layout(gtx)
+				}),
+			)
+
+			op.Offset(image.Point{X: 100, Y: 500}).Add(&ops)
+
+			material.Button(th, &c, "Click me, click me").Layout(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:

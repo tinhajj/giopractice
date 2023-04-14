@@ -52,14 +52,9 @@ func (b ButtonStyle) Layout(gtx layout.Context) layout.Dimensions {
 		paint.ColorOp{Color: color.NRGBA{R: 255, A: 255}}.Add(gtx.Ops)
 		colOp := colMacro.Stop()
 
-		layout.Inset{Top: 20, Bottom: 20, Left: 20, Right: 20}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Inset{Top: 20, Bottom: 20, Left: 20, Right: 20}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 			return widget.Label{}.Layout(gtx, b.Theme.Shaper, b.Font, 30, b.Label, colOp)
 		})
-
-		return layout.Dimensions{
-			Size:     gtx.Constraints.Max,
-			Baseline: 0,
-		}
 	})
 }
 
