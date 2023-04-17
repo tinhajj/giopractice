@@ -35,10 +35,11 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	}
 
 	return border.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-		defer clip.UniformRRect(image.Rectangle{
+		cRect := clip.UniformRRect(image.Rectangle{
 			Min: image.Point{},
 			Max: gtx.Constraints.Max,
-		}, 2).Push(gtx.Ops).Pop()
+		}, 2)
+		defer cRect.Push(gtx.Ops).Pop()
 
 		paint.Fill(gtx.Ops, color.NRGBA{100, 255, 255, 255})
 		return layout.Dimensions{
