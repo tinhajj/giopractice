@@ -40,8 +40,14 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 			Max: gtx.Constraints.Max,
 		}, 2)
 		defer cRect.Push(gtx.Ops).Pop()
-
 		paint.Fill(gtx.Ops, color.NRGBA{100, 255, 255, 255})
+
+		defer clip.Stroke{
+			Path:  cRect.Path(gtx.Ops),
+			Width: 10,
+		}.Op().Push(gtx.Ops).Pop()
+		//paint.Fill(gtx.Ops, color.NRGBA{100, 155, 255, 255})
+
 		return layout.Dimensions{
 			Size:     gtx.Constraints.Max,
 			Baseline: 0,
