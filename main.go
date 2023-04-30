@@ -39,6 +39,10 @@ func draw(w *app.Window) error {
 	window := widget.Window{
 		Height: 300,
 		Width:  100,
+		Position: image.Point{
+			X: 100,
+			Y: 10,
+		},
 	}
 
 	for windowEvent := range w.Events() {
@@ -46,7 +50,6 @@ func draw(w *app.Window) error {
 
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
-			op.Offset(image.Point{X: 10, Y: 10}).Add(&ops)
 
 			paint.Fill(&ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 0xff})
 

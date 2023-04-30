@@ -5,7 +5,9 @@ import (
 	"image/color"
 	"ui/widget"
 
+	"gioui.org/io/pointer"
 	"gioui.org/layout"
+	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	gwidget "gioui.org/widget"
@@ -22,6 +24,22 @@ func Window(window *widget.Window) WindowStyle {
 }
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
+	op.Offset(ws.Window.Position).Add(gtx.Ops)
+
+	rect := clip.Rect{
+		Min: image.Point{
+			X: 0,
+			Y: 5,
+		},
+		Max: ws.Window.Position.Add(image.Point{X: 0, Y: 10}),
+	}
+	area := rect.Push(gtx.Ops)
+	paint.Fill(gtx.Ops, color.NRGBA{100, 0, 255, 255})
+	pointer.CursorNorthResize.Add(gtx.Ops)
+	area.Pop()
+
+	op.Offset(image.Point{0, 10}).Add(gtx.Ops)
+
 	point := image.Point{
 		Y: ws.Window.Height,
 		X: ws.Window.Width,
