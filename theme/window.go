@@ -49,11 +49,12 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	pointer.InputOp{
 		Tag:          ws.Window,
 		Grab:         false,
-		Types:        pointer.Press | pointer.Drag | pointer.Release,
+		Types:        pointer.Drag | pointer.Release,
 		ScrollBounds: image.Rectangle{},
 	}.Add(gtx.Ops)
 	if ws.Window.Dragging {
 		paint.Fill(gtx.Ops, color.NRGBA{100, 255, 0, 255})
+		pointer.CursorNorthResize.Add(gtx.Ops)
 	} else {
 		paint.Fill(gtx.Ops, color.NRGBA{100, 0, 255, 255})
 	}
