@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"ui/widget"
@@ -24,6 +25,19 @@ func Window(window *widget.Window) WindowStyle {
 }
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
+	// Process events that arrived between the last frame and this one.
+	for _, ev := range gtx.Events(&ws.Window) {
+		if x, ok := ev.(pointer.Event); ok {
+			fmt.Println("event pickup")
+			switch x.Type {
+			case pointer.Drag:
+				ws.Window.Dragging = true
+			case pointer.Release:
+				ws.Window.Dragging = false
+			}
+		}
+	}
+
 	op.Offset(ws.Window.Position).Add(gtx.Ops)
 
 	rect := clip.Rect{
@@ -34,7 +48,17 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		Max: ws.Window.Position.Add(image.Point{X: 0, Y: 10}),
 	}
 	area := rect.Push(gtx.Ops)
-	paint.Fill(gtx.Ops, color.NRGBA{100, 0, 255, 255})
+	pointer.InputOp{
+		Tag:          &ws.Window,
+		Grab:         false,
+		Types:        pointer.Drag | pointer.Release,
+		ScrollBounds: image.Rectangle{},
+	}.Add(gtx.Ops)
+	if ws.Window.Dragging {
+		paint.Fill(gtx.Ops, color.NRGBA{100, 255, 0, 255})
+	} else {
+		paint.Fill(gtx.Ops, color.NRGBA{100, 0, 255, 255})
+	}
 	pointer.CursorNorthResize.Add(gtx.Ops)
 	area.Pop()
 
