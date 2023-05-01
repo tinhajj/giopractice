@@ -1,7 +1,6 @@
 package theme
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"ui/widget"
@@ -26,9 +25,8 @@ func Window(window *widget.Window) WindowStyle {
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
-	for _, ev := range gtx.Events(&ws.Window) {
+	for _, ev := range gtx.Events(ws.Window) {
 		if x, ok := ev.(pointer.Event); ok {
-			fmt.Println("event pickup")
 			switch x.Type {
 			case pointer.Drag:
 				ws.Window.Dragging = true
@@ -49,9 +47,9 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	}
 	area := rect.Push(gtx.Ops)
 	pointer.InputOp{
-		Tag:          &ws.Window,
+		Tag:          ws.Window,
 		Grab:         false,
-		Types:        pointer.Drag | pointer.Release,
+		Types:        pointer.Press | pointer.Drag | pointer.Release,
 		ScrollBounds: image.Rectangle{},
 	}.Add(gtx.Ops)
 	if ws.Window.Dragging {
