@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"ui/widget"
@@ -26,17 +27,18 @@ func Window(window *widget.Window) WindowStyle {
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
 	for _, ev := range gtx.Events(ws.Window) {
-		if x, ok := ev.(pointer.Event); ok {
-			switch x.Type {
+		if e, ok := ev.(pointer.Event); ok {
+			switch e.Type {
 			case pointer.Press:
-				ws.Window.LastPosition = x.Position
+				ws.Window.LastPosition = e.Position
 			case pointer.Drag:
 				ws.Window.Dragging = true
 
-				heightDifference := x.Position.Y - ws.Window.LastPosition.Y
+				heightDifference := ws.Window.LastPosition.Y - e.Position.Y
+				fmt.Println(e.Position.X, e.Position.Y)
 				ws.Window.Height += int(heightDifference)
-				ws.Window.Position = x.Position.Round()
-				ws.Window.LastPosition = x.Position
+				ws.Window.Position = e.Position.Round()
+				ws.Window.LastPosition = e.Position
 			case pointer.Release:
 				ws.Window.Dragging = false
 			}
