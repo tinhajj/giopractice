@@ -28,8 +28,15 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	for _, ev := range gtx.Events(ws.Window) {
 		if x, ok := ev.(pointer.Event); ok {
 			switch x.Type {
+			case pointer.Press:
+				ws.Window.LastPosition = x.Position
 			case pointer.Drag:
 				ws.Window.Dragging = true
+
+				heightDifference := x.Position.Y - ws.Window.LastPosition.Y
+				ws.Window.Height += int(heightDifference)
+				ws.Window.Position = x.Position.Round()
+				ws.Window.LastPosition = x.Position
 			case pointer.Release:
 				ws.Window.Dragging = false
 			}
@@ -49,7 +56,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	pointer.InputOp{
 		Tag:          ws.Window,
 		Grab:         false,
-		Types:        pointer.Drag | pointer.Release,
+		Types:        pointer.Drag | pointer.Release | pointer.Press,
 		ScrollBounds: image.Rectangle{},
 	}.Add(gtx.Ops)
 	if ws.Window.Dragging {
