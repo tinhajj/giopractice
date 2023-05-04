@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image"
 	"image/color"
 	"log"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"ui/widget"
 
 	"gioui.org/app"
+	"gioui.org/f32"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -39,7 +39,7 @@ func draw(w *app.Window) error {
 	window := widget.Window{
 		Height: 300,
 		Width:  100,
-		Position: image.Point{
+		Position: f32.Point{
 			X: 100,
 			Y: 10,
 		},

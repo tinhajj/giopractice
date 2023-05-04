@@ -34,10 +34,11 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 			case pointer.Drag:
 				ws.Window.Dragging = true
 
-				heightDifference := ws.Window.LastPosition.Y - e.Position.Y
+				//heightDifference := ws.Window.LastPosition.Y - e.Position.Y
 				fmt.Println(e.Position.X, e.Position.Y)
-				ws.Window.Height += int(heightDifference)
-				ws.Window.Position = e.Position.Round()
+				difference := e.Position.Sub(ws.Window.LastPosition)
+				//ws.Window.Height += int(heightDifference)
+				ws.Window.Position = ws.Window.Position.Add(difference)
 				ws.Window.LastPosition = e.Position
 			case pointer.Release:
 				ws.Window.Dragging = false
@@ -45,14 +46,14 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		}
 	}
 
-	op.Offset(ws.Window.Position).Add(gtx.Ops)
+	op.Offset(ws.Window.Position.Round()).Add(gtx.Ops)
 
 	rect := clip.Rect{
 		Min: image.Point{
 			X: 0,
-			Y: 5,
+			Y: 0,
 		},
-		Max: ws.Window.Position.Add(image.Point{X: 0, Y: 10}),
+		Max: image.Point{X: ws.Window.Width, Y: 10},
 	}
 	area := rect.Push(gtx.Ops)
 	pointer.InputOp{
