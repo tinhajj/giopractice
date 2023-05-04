@@ -1,17 +1,16 @@
 package theme
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"ui/widget"
 
+	"gioui.org/gesture"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
-	gwidget "gioui.org/widget"
 )
 
 type WindowStyle struct {
@@ -26,23 +25,21 @@ func Window(window *widget.Window) WindowStyle {
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
-	for _, ev := range gtx.Events(ws.Window) {
-		if e, ok := ev.(pointer.Event); ok {
-			switch e.Type {
-			case pointer.Press:
-				ws.Window.LastPosition = e.Position
-			case pointer.Drag:
-				ws.Window.Dragging = true
+	for _, e := range ws.Window.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
+		switch e.Type {
+		case pointer.Press:
+			ws.Window.StartClickPosition = e.Position
+			ws.Window.StartPosition = ws.Window.Position
+		case pointer.Drag:
+			ws.Window.Dragging = true
 
-				//heightDifference := ws.Window.LastPosition.Y - e.Position.Y
-				fmt.Println(e.Position.X, e.Position.Y)
-				difference := e.Position.Sub(ws.Window.LastPosition)
-				//ws.Window.Height += int(heightDifference)
-				ws.Window.Position = ws.Window.Position.Add(difference)
-				ws.Window.LastPosition = e.Position
-			case pointer.Release:
-				ws.Window.Dragging = false
-			}
+			difference := e.Position.Sub(ws.Window.StartClickPosition)
+			ws.Window.Position = ws.Window.StartPosition.Add(difference)
+		case pointer.Release:
+			ws.Window.Dragging = false
+
+			difference := e.Position.Sub(ws.Window.StartClickPosition)
+			ws.Window.Position = ws.Window.StartPosition.Add(difference)
 		}
 	}
 
@@ -55,20 +52,18 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		},
 		Max: image.Point{X: ws.Window.Width, Y: 10},
 	}
+
 	area := rect.Push(gtx.Ops)
-	pointer.InputOp{
-		Tag:          ws.Window,
-		Grab:         false,
-		Types:        pointer.Drag | pointer.Release | pointer.Press,
-		ScrollBounds: image.Rectangle{},
-	}.Add(gtx.Ops)
-	if ws.Window.Dragging {
-		paint.Fill(gtx.Ops, color.NRGBA{100, 255, 0, 255})
+	{
+		ws.Window.Drag.Add(gtx.Ops)
+		if ws.Window.Dragging {
+			paint.Fill(gtx.Ops, color.NRGBA{100, 255, 0, 255})
+			pointer.CursorNorthResize.Add(gtx.Ops)
+		} else {
+			paint.Fill(gtx.Ops, color.NRGBA{100, 0, 255, 255})
+		}
 		pointer.CursorNorthResize.Add(gtx.Ops)
-	} else {
-		paint.Fill(gtx.Ops, color.NRGBA{100, 0, 255, 255})
 	}
-	pointer.CursorNorthResize.Add(gtx.Ops)
 	area.Pop()
 
 	op.Offset(image.Point{0, 10}).Add(gtx.Ops)
@@ -79,13 +74,13 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	}
 	gtx.Constraints.Max = point
 
-	border := gwidget.Border{
+	border := widget.Border{
 		Color:        color.NRGBA{155, 25, 155, 255},
 		CornerRadius: 2,
 		Width:        1,
 	}
 
-	return border.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+	dims := border.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		cRect := clip.UniformRRect(image.Rectangle{
 			Min: image.Point{},
 			Max: gtx.Constraints.Max,
@@ -93,15 +88,13 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		defer cRect.Push(gtx.Ops).Pop()
 		paint.Fill(gtx.Ops, color.NRGBA{100, 255, 255, 255})
 
-		defer clip.Stroke{
-			Path:  cRect.Path(gtx.Ops),
-			Width: 10,
-		}.Op().Push(gtx.Ops).Pop()
-		//paint.Fill(gtx.Ops, color.NRGBA{100, 155, 255, 255})
-
 		return layout.Dimensions{
 			Size:     gtx.Constraints.Max,
 			Baseline: 0,
 		}
 	})
+
+	op.Offset(difference).Add(gtx.Ops)
+
+	return dims
 }
