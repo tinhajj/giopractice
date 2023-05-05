@@ -9,6 +9,7 @@ type Window struct {
 	Height   int
 	Width    int
 	Position f32.Point
+
 	Dragging bool
 
 	Drag gesture.Drag
@@ -16,4 +17,5 @@ type Window struct {
 	StartClickPosition f32.Point
 	StartPosition      f32.Point
 	LastPosition       f32.Point
+	DragOffset         f32.Point
 }

@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"ui/widget"
 
-	"gioui.org/f32"
 	"gioui.org/gesture"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
@@ -26,7 +25,6 @@ func Window(window *widget.Window) WindowStyle {
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
-	difference := f32.Point{}
 	for _, e := range ws.Window.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
 		switch e.Type {
 		case pointer.Press:
@@ -35,14 +33,15 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		case pointer.Drag:
 			ws.Window.Dragging = true
 
-			difference = e.Position.Sub(ws.Window.StartClickPosition)
+			ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
 			//ws.Window.Position = ws.Window.StartPosition.Add(difference)
 		case pointer.Release:
 			ws.Window.Dragging = false
 
-			difference = e.Position.Sub(ws.Window.StartClickPosition)
+			ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
 			//ws.Window.Position = ws.Window.StartPosition.Add(difference)
 		}
+
 	}
 
 	op.Offset(ws.Window.Position.Round()).Add(gtx.Ops)
@@ -96,8 +95,10 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		}
 	}
 
-	border.Layout(gtx, w)
+	if !ws.Window.Dragging {
+		border.Layout(gtx, w)
+	}
 
-	op.Offset(difference.Round()).Add(gtx.Ops)
+	op.Offset(ws.Window.DragOffset.Round()).Add(gtx.Ops)
 	return border.Layout(gtx, w)
 }

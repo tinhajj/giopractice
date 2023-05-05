@@ -13,7 +13,6 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/unit"
 )
@@ -46,16 +45,6 @@ func draw(w *app.Window) error {
 			Y: 10,
 		},
 	}
-	drag := &widget.Draggable{Type: "wig"}
-	widget := func(gtx layout.Context) layout.Dimensions {
-		sz := image.Pt(10, 100)
-		defer clip.Rect{
-			Min: image.Point{0, 0},
-			Max: image.Point{100, 100},
-		}.Push(gtx.Ops).Pop()
-		paint.Fill(gtx.Ops, color.NRGBA{G: 220, A: 255})
-		return layout.Dimensions{Size: sz}
-	}
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
@@ -68,7 +57,6 @@ func draw(w *app.Window) error {
 			theme.Window(&window).Layout(gtx)
 
 			op.Offset(image.Point{X: 100, Y: 300}).Add(gtx.Ops)
-			drag.Layout(gtx, widget, widget)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
