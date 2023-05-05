@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"ui/widget"
 
+	"gioui.org/f32"
 	"gioui.org/gesture"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
@@ -25,6 +26,7 @@ func Window(window *widget.Window) WindowStyle {
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
+	difference := f32.Point{}
 	for _, e := range ws.Window.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
 		switch e.Type {
 		case pointer.Press:
@@ -33,13 +35,13 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		case pointer.Drag:
 			ws.Window.Dragging = true
 
-			difference := e.Position.Sub(ws.Window.StartClickPosition)
-			ws.Window.Position = ws.Window.StartPosition.Add(difference)
+			difference = e.Position.Sub(ws.Window.StartClickPosition)
+			//ws.Window.Position = ws.Window.StartPosition.Add(difference)
 		case pointer.Release:
 			ws.Window.Dragging = false
 
-			difference := e.Position.Sub(ws.Window.StartClickPosition)
-			ws.Window.Position = ws.Window.StartPosition.Add(difference)
+			difference = e.Position.Sub(ws.Window.StartClickPosition)
+			//ws.Window.Position = ws.Window.StartPosition.Add(difference)
 		}
 	}
 
@@ -80,7 +82,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		Width:        1,
 	}
 
-	dims := border.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+	w := func(gtx layout.Context) layout.Dimensions {
 		cRect := clip.UniformRRect(image.Rectangle{
 			Min: image.Point{},
 			Max: gtx.Constraints.Max,
@@ -92,9 +94,10 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 			Size:     gtx.Constraints.Max,
 			Baseline: 0,
 		}
-	})
+	}
 
-	op.Offset(difference).Add(gtx.Ops)
+	border.Layout(gtx, w)
 
-	return dims
+	op.Offset(difference.Round()).Add(gtx.Ops)
+	return border.Layout(gtx, w)
 }
