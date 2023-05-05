@@ -41,7 +41,6 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 			ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
 			//ws.Window.Position = ws.Window.StartPosition.Add(difference)
 		}
-
 	}
 
 	op.Offset(ws.Window.Position.Round()).Add(gtx.Ops)
