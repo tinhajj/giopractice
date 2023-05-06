@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"ui/widget"
 
-	"gioui.org/gesture"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -25,22 +24,27 @@ func Window(window *widget.Window) WindowStyle {
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
-	for _, e := range ws.Window.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
-		switch e.Type {
-		case pointer.Press:
-			ws.Window.StartClickPosition = e.Position
-			ws.Window.StartPosition = ws.Window.Position
-		case pointer.Drag:
-			ws.Window.Dragging = true
+	//for _, e := range ws.Window.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
+	//	switch e.Type {
+	//	case pointer.Press:
+	//		ws.Window.StartClickPosition = e.Position
+	//		ws.Window.StartPosition = ws.Window.Position
+	//	case pointer.Drag:
+	//		ws.Window.Dragging = true
 
-			ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
-			//ws.Window.Position = ws.Window.StartPosition.Add(difference)
-		case pointer.Release:
-			ws.Window.Dragging = false
+	//		ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
+	//		//ws.Window.Position = ws.Window.StartPosition.Add(difference)
+	//	case pointer.Release:
+	//		ws.Window.Dragging = false
 
-			ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
-			//ws.Window.Position = ws.Window.StartPosition.Add(difference)
-		}
+	//		ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
+	//		//ws.Window.Position = ws.Window.StartPosition.Add(difference)
+	//	}
+	//}
+
+	rect := clip.Rect{
+		Min: image.Point{X: 0, Y: 0},
+		Max: image.Point{X: 0, Y: 0},
 	}
 
 	op.Offset(ws.Window.Position.Round()).Add(gtx.Ops)
