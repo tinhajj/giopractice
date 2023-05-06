@@ -27,10 +27,10 @@ func NewWindow(title string) *Window {
 		Width:    400,
 		Position: f32.Point{},
 
-		TopBar:    NewResizeBar(5, width),
-		BottomBar: NewResizeBar(5, width),
-		LeftBar:   NewResizeBar(height, 5),
-		RightBar:  NewResizeBar(height, 5),
+		TopBar:    NewResizeBar(15, width),
+		BottomBar: NewResizeBar(15, width),
+		LeftBar:   NewResizeBar(height, 15),
+		RightBar:  NewResizeBar(height, 15),
 	}
 }
 

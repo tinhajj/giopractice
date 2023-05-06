@@ -9,7 +9,6 @@ import (
 	"ui/widget"
 
 	"gioui.org/app"
-	"gioui.org/f32"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -37,14 +36,7 @@ func draw(w *app.Window) error {
 	var ops op.Ops
 	// th := material.NewTheme(gofont.Collection())
 	// c := widget.Clickable{}
-	window := widget.Window{
-		Height: 300,
-		Width:  100,
-		Position: f32.Point{
-			X: 100,
-			Y: 10,
-		},
-	}
+	window := widget.NewWindow("Main")
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
@@ -54,7 +46,7 @@ func draw(w *app.Window) error {
 
 			paint.Fill(&ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 0xff})
 
-			theme.Window(&window).Layout(gtx)
+			theme.Window(window).Layout(gtx)
 
 			op.Offset(image.Point{X: 100, Y: 300}).Add(gtx.Ops)
 
