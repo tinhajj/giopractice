@@ -18,13 +18,13 @@ type Window struct {
 }
 
 func NewWindow(title string) *Window {
-	height := 300
+	height := 800
 	width := 400
 
 	return &Window{
 		Title:    title,
-		Height:   300,
-		Width:    400,
+		Height:   height,
+		Width:    width,
 		Position: f32.Point{},
 
 		TopBar:    NewResizeBar(15, width),

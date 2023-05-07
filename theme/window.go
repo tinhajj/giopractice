@@ -5,8 +5,9 @@ import (
 	"image/color"
 	"ui/widget"
 
+	"gioui.org/gesture"
+	"gioui.org/io/pointer"
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 )
@@ -23,31 +24,31 @@ func Window(window *widget.Window) WindowStyle {
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
-	//for _, e := range ws.Window.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
-	//	switch e.Type {
-	//	case pointer.Press:
-	//		ws.Window.StartClickPosition = e.Position
-	//		ws.Window.StartPosition = ws.Window.Position
-	//	case pointer.Drag:
-	//		ws.Window.Dragging = true
+	for _, e := range ws.Window.TopBar.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
+		//switch e.Type {
+		//case pointer.Press:
+		//	ws.Window.StartClickPosition = e.Position
+		//	ws.Window.StartPosition = ws.Window.Position
+		//case pointer.Drag:
+		//	ws.Window.Dragging = true
 
-	//		ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
-	//		//ws.Window.Position = ws.Window.StartPosition.Add(difference)
-	//	case pointer.Release:
-	//		ws.Window.Dragging = false
+		//	ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
+		//	//ws.Window.Position = ws.Window.StartPosition.Add(difference)
+		//case pointer.Release:
+		//	ws.Window.Dragging = false
 
-	//		ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
-	//		//ws.Window.Position = ws.Window.StartPosition.Add(difference)
-	//	}
-	//}
+		//	ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
+		//	//ws.Window.Position = ws.Window.StartPosition.Add(difference)
+		//}
+	}
 
-	op.Offset(image.Point{X: 30, Y: 30}).Add(gtx.Ops)
 	rect := clip.Rect{
 		Min: image.Point{X: 0, Y: 0},
 		Max: image.Point{X: ws.Window.TopBar.Width, Y: ws.Window.TopBar.Height},
 	}
 	stack := rect.Push(gtx.Ops)
-	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
+	paint.Fill(gtx.Ops, color.NRGBA{R: 0, G: 0, B: 100, A: 200})
+	pointer.CursorNorthResize.Add(gtx.Ops)
 	stack.Pop()
 
 	rect = clip.Rect{
@@ -56,6 +57,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	}
 	stack = rect.Push(gtx.Ops)
 	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
+	pointer.CursorColResize.Add(gtx.Ops)
 	stack.Pop()
 
 	rect = clip.Rect{
@@ -64,6 +66,16 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	}
 	stack = rect.Push(gtx.Ops)
 	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
+	pointer.CursorColResize.Add(gtx.Ops)
+	stack.Pop()
+
+	rect = clip.Rect{
+		Min: image.Point{X: 0, Y: ws.Window.Height - ws.Window.BottomBar.Height},
+		Max: image.Point{X: ws.Window.Width, Y: ws.Window.Height},
+	}
+	stack = rect.Push(gtx.Ops)
+	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
+	pointer.CursorSouthResize.Add(gtx.Ops)
 	stack.Pop()
 
 	return layout.Dimensions{}

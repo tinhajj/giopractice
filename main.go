@@ -46,9 +46,8 @@ func draw(w *app.Window) error {
 
 			paint.Fill(&ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 0xff})
 
+			op.Offset(image.Point{X: 100, Y: 100}).Add(gtx.Ops)
 			theme.Window(window).Layout(gtx)
-
-			op.Offset(image.Point{X: 100, Y: 300}).Add(gtx.Ops)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
