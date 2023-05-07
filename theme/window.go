@@ -6,6 +6,7 @@ import (
 	"ui/widget"
 
 	"gioui.org/layout"
+	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 )
@@ -40,6 +41,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	//	}
 	//}
 
+	op.Offset(image.Point{X: 30, Y: 30}).Add(gtx.Ops)
 	rect := clip.Rect{
 		Min: image.Point{X: 0, Y: 0},
 		Max: image.Point{X: ws.Window.TopBar.Width, Y: ws.Window.TopBar.Height},
@@ -50,7 +52,15 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 
 	rect = clip.Rect{
 		Min: image.Point{X: 0, Y: 0},
-		Max: image.Point{X: ws.Window.TopBar.Width, Y: ws.Window.TopBar.Height},
+		Max: image.Point{X: ws.Window.LeftBar.Width, Y: ws.Window.LeftBar.Height},
+	}
+	stack = rect.Push(gtx.Ops)
+	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
+	stack.Pop()
+
+	rect = clip.Rect{
+		Min: image.Point{X: ws.Window.Width - ws.Window.RightBar.Width, Y: 0},
+		Max: image.Point{X: ws.Window.Width, Y: ws.Window.RightBar.Height},
 	}
 	stack = rect.Push(gtx.Ops)
 	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
