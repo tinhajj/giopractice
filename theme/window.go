@@ -26,22 +26,16 @@ func Window(window *widget.Window) WindowStyle {
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
 	for _, e := range ws.Window.TopBar.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
-		fmt.Println(e)
-		//switch e.Type {
-		//case pointer.Press:
-		//	ws.Window.StartClickPosition = e.Position
-		//	ws.Window.StartPosition = ws.Window.Position
-		//case pointer.Drag:
-		//	ws.Window.Dragging = true
-
-		//	ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
-		//	//ws.Window.Position = ws.Window.StartPosition.Add(difference)
-		//case pointer.Release:
-		//	ws.Window.Dragging = false
-
-		//	ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
-		//	//ws.Window.Position = ws.Window.StartPosition.Add(difference)
-		//}
+		switch e.Type {
+		case pointer.Press:
+			ws.Window.TopBar.StartPosition = e.Position
+		case pointer.Drag:
+			ws.Window.TopBar.Dragging = true
+			fmt.Println(e.Position.Sub(ws.Window.TopBar.StartPosition))
+		case pointer.Release:
+			ws.Window.TopBar.Dragging = false
+			ws.Window.DragOffset = e.Position.Sub(ws.Window.StartClickPosition)
+		}
 	}
 
 	rect := clip.Rect{
@@ -51,6 +45,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	stack := rect.Push(gtx.Ops)
 	paint.Fill(gtx.Ops, color.NRGBA{R: 0, G: 0, B: 100, A: 200})
 	pointer.CursorNorthResize.Add(gtx.Ops)
+	ws.Window.TopBar.Drag.Add(gtx.Ops)
 	stack.Pop()
 
 	rect = clip.Rect{
