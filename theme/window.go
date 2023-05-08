@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"ui/widget"
@@ -25,6 +26,7 @@ func Window(window *widget.Window) WindowStyle {
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	// Process events that arrived between the last frame and this one.
 	for _, e := range ws.Window.TopBar.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
+		fmt.Println(e)
 		//switch e.Type {
 		//case pointer.Press:
 		//	ws.Window.StartClickPosition = e.Position
@@ -52,6 +54,15 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	stack.Pop()
 
 	rect = clip.Rect{
+		Min: image.Point{X: 0, Y: ws.Window.Height - ws.Window.BottomBar.Height},
+		Max: image.Point{X: ws.Window.Width, Y: ws.Window.Height},
+	}
+	stack = rect.Push(gtx.Ops)
+	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
+	pointer.CursorSouthResize.Add(gtx.Ops)
+	stack.Pop()
+
+	rect = clip.Rect{
 		Min: image.Point{X: 0, Y: 0},
 		Max: image.Point{X: ws.Window.LeftBar.Width, Y: ws.Window.LeftBar.Height},
 	}
@@ -67,15 +78,6 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	stack = rect.Push(gtx.Ops)
 	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
 	pointer.CursorColResize.Add(gtx.Ops)
-	stack.Pop()
-
-	rect = clip.Rect{
-		Min: image.Point{X: 0, Y: ws.Window.Height - ws.Window.BottomBar.Height},
-		Max: image.Point{X: ws.Window.Width, Y: ws.Window.Height},
-	}
-	stack = rect.Push(gtx.Ops)
-	paint.Fill(gtx.Ops, color.NRGBA{A: 200, B: 100})
-	pointer.CursorSouthResize.Add(gtx.Ops)
 	stack.Pop()
 
 	return layout.Dimensions{}
