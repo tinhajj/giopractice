@@ -34,6 +34,27 @@ func NewWindow(title string) *Window {
 	}
 }
 
+func (w *Window) Dragging() bool {
+	return w.TopBar.Dragging || w.BottomBar.Dragging || w.LeftBar.Dragging || w.RightBar.Dragging
+}
+
+func (w *Window) DragOffset() f32.Point {
+	if w.TopBar.Dragging {
+		return w.TopBar.DragOffset
+	}
+	if w.BottomBar.Dragging {
+		return w.BottomBar.DragOffset
+	}
+	if w.LeftBar.Dragging {
+		return w.LeftBar.DragOffset
+	}
+	if w.RightBar.Dragging {
+		return w.RightBar.DragOffset
+	}
+
+	return f32.Point{}
+}
+
 type ResizeBar struct {
 	Height int
 	Width  int
