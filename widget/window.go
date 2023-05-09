@@ -65,6 +65,8 @@ type ResizeBar struct {
 
 	StartPosition f32.Point
 	DragOffset    f32.Point
+
+	StartWindowHeight int
 }
 
 func NewResizeBar(height, width int) *ResizeBar {
