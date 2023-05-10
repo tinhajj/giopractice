@@ -1,7 +1,6 @@
 package theme
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"ui/widget"
@@ -34,7 +33,6 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		case pointer.Drag:
 			ws.Window.TopBar.Dragging = true
 			ws.Window.TopBar.DragOffset = e.Position.Sub(ws.Window.TopBar.StartPosition)
-			fmt.Println(ws.Window.TopBar.DragOffset.Round().Y)
 			ws.Window.Height = ws.Window.TopBar.StartWindowHeight - ws.Window.TopBar.DragOffset.Round().Y
 		case pointer.Release:
 			ws.Window.TopBar.Dragging = false
