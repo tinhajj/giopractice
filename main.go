@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image"
 	"image/color"
 	"log"
 	"os"
@@ -33,13 +34,10 @@ func main() {
 
 func draw(w *app.Window) error {
 	var ops op.Ops
-<<<<<<< HEAD
-=======
 	// th := material.NewTheme(gofont.Collection())
-	// c := widget.Clickable{}
-	// window := widget.NewWindow("Main")
-	var b widget.Bool
->>>>>>> c9ab47d (commit)
+
+	active := true
+	b := widget.NewBool(&active)
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
@@ -47,15 +45,12 @@ func draw(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-<<<<<<< HEAD
 			paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 100})
-=======
-			paint.Fill(&ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 0xff})
 
 			op.Offset(image.Point{X: 100, Y: 100}).Add(gtx.Ops)
-			theme.Checkbox(&b).Layout(gtx)
-			//theme.Window(window).Layout(gtx)
->>>>>>> c9ab47d (commit)
+			cs := theme.Checkbox(b)
+			cs.Size = image.Point{X: 100, Y: 100}
+			cs.Layout(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
