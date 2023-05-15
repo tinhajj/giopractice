@@ -8,6 +8,8 @@ import (
 	"ui/theme"
 	"ui/widget"
 
+	tlayout "ui/layout"
+
 	"gioui.org/app"
 	"gioui.org/io/system"
 	"gioui.org/layout"
@@ -48,9 +50,11 @@ func draw(w *app.Window) error {
 			paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 100})
 
 			op.Offset(image.Point{X: 100, Y: 100}).Add(gtx.Ops)
+
 			cs := theme.Checkbox(b)
-			cs.Size = image.Point{X: 100, Y: 100}
-			cs.Layout(gtx)
+
+			lay := tlayout.ConstrainedLayout{Size: image.Pt(100, 100)}
+			lay.Layout(gtx, cs.Layout)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
