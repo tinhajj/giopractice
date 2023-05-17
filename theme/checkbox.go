@@ -23,7 +23,7 @@ func Checkbox(b *widget.Bool) *CheckboxStyle {
 func (cs *CheckboxStyle) Layout(c layout.Context) layout.Dimensions {
 	return widget.Border{Width: unit.Dp(3), Color: color.NRGBA{G: 100, A: 255}}.Layout(c, func(c layout.Context) layout.Dimensions {
 		return cs.b.Layout(c, func(context layout.Context) layout.Dimensions {
-			paint.FillShape(context.Ops, color.NRGBA{A: 100, G: 100}, clip.Rect{
+			paint.FillShape(context.Ops, color.NRGBA{A: 100, G: 255}, clip.Rect{
 				Max: c.Constraints.Max,
 			}.Op())
 
