@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"log"
 	"os"
+	"ui/theme"
 	"ui/widget"
+
+	tlayout "ui/layout"
 
 	"gioui.org/app"
 	"gioui.org/font/gofont"
@@ -17,6 +19,9 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget/material"
 )
+
+type C = layout.Context
+type D = layout.Dimensions
 
 func main() {
 	go func() {
@@ -38,8 +43,8 @@ func draw(w *app.Window) error {
 	var ops op.Ops
 	th := material.NewTheme(gofont.Collection())
 
-	//active := true
-	//b := widget.NewBool(&active)
+	active := true
+	b := widget.NewBool(&active)
 	clickable := widget.Clickable{}
 
 	for windowEvent := range w.Events() {
@@ -50,16 +55,15 @@ func draw(w *app.Window) error {
 
 			paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 100})
 
-			//op.Offset(image.Point{X: 100, Y: 100}).Add(gtx.Ops)
+			cs := theme.Checkbox(b)
+			lay := tlayout.ConstrainedLayout{Size: image.Pt(30, 30)}
 
-			//cs := theme.Checkbox(b)
-			//lay := tlayout.ConstrainedLayout{Size: image.Pt(100, 100)}
-			//lay.Layout(gtx, cs.Layout)
+			layout.UniformInset(unit.Dp(12)).Layout(gtx, func(gtx C) D {
+				//return cs.Layout(gtx)
+				return lay.Layout(gtx, cs.Layout)
+			})
 
-			gtx.Constraints.Min = image.Pt(0, 0)
-			//fmt.Println("constraints", gtx.Constraints)
 			//dims := material.Button(th, &clickable, "info").Layout(gtx)
-			//fmt.Println("dims", dims)
 
 			layout.Flex{
 				// Vertical alignment, from top to bottom
@@ -72,9 +76,7 @@ func draw(w *app.Window) error {
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
 						btn := material.Button(th, &clickable, "First")
-						dims := btn.Layout(gtx)
-						fmt.Println("dims button1", dims)
-						return dims
+						return btn.Layout(gtx)
 					},
 				),
 				// ... then an empty spacer
@@ -87,9 +89,7 @@ func draw(w *app.Window) error {
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
 						btn := material.Button(th, &clickable, "Second")
-						dims := btn.Layout(gtx)
-						fmt.Println("dims buttons2", dims)
-						return dims
+						return btn.Layout(gtx)
 					},
 				),
 				// ... then an empty spacer
