@@ -1,14 +1,11 @@
 package main
 
 import (
-	"image"
 	"image/color"
 	"log"
 	"os"
 	"ui/theme"
 	"ui/widget"
-
-	tlayout "ui/layout"
 
 	"gioui.org/app"
 	"gioui.org/font/gofont"
@@ -16,8 +13,8 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/paint"
+	"gioui.org/text"
 	"gioui.org/unit"
-	"gioui.org/widget/material"
 )
 
 type C = layout.Context
@@ -41,11 +38,18 @@ func main() {
 
 func draw(w *app.Window) error {
 	var ops op.Ops
-	th := material.NewTheme(gofont.Collection())
+	//th := material.NewTheme(gofont.Collection())
 
-	active := true
-	b := widget.NewBool(&active)
-	clickable := widget.Clickable{}
+	fonts := gofont.Collection()
+	shaper := text.NewShaper(fonts)
+
+	font := text.Font{}
+
+	//active := true
+	//b := widget.NewBool(&active)
+
+	win := widget.NewWindow("Hello")
+	label := widget.Label{Alignment: text.Middle}
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
@@ -53,51 +57,14 @@ func draw(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 100})
+			paint.Fill(gtx.Ops, color.NRGBA{R: 105, G: 105, B: 105, A: 255})
 
-			cs := theme.Checkbox(b)
-			lay := tlayout.ConstrainedLayout{Size: image.Pt(30, 30)}
+			textColorMacro := op.Record(gtx.Ops)
+			paint.ColorOp{Color: color.NRGBA{R: 0, B: 0, G: 0, A: 255}}.Add(gtx.Ops)
+			textColor := textColorMacro.Stop()
+			label.Layout(gtx, shaper, font, unit.Sp(30), "Hello", textColor)
 
-			layout.UniformInset(unit.Dp(12)).Layout(gtx, func(gtx C) D {
-				//return cs.Layout(gtx)
-				return lay.Layout(gtx, cs.Layout)
-			})
-
-			//dims := material.Button(th, &clickable, "info").Layout(gtx)
-
-			layout.Flex{
-				// Vertical alignment, from top to bottom
-				Axis: layout.Vertical,
-				// Empty space is left at the start, i.e. at the top
-				Spacing: layout.SpaceStart,
-			}.Layout(gtx,
-				// We insert two rigid elements:
-				// First a button ...
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						btn := material.Button(th, &clickable, "First")
-						return btn.Layout(gtx)
-					},
-				),
-				// ... then an empty spacer
-				layout.Rigid(
-					// The height of the spacer is 25 Device independent pixels
-					layout.Spacer{Height: unit.Dp(25)}.Layout,
-				),
-				// We insert two rigid elements:
-				// First a button ...
-				layout.Rigid(
-					func(gtx layout.Context) layout.Dimensions {
-						btn := material.Button(th, &clickable, "Second")
-						return btn.Layout(gtx)
-					},
-				),
-				// ... then an empty spacer
-				layout.Rigid(
-					// The height of the spacer is 25 Device independent pixels
-					layout.Spacer{Height: unit.Dp(25)}.Layout,
-				),
-			)
+			theme.Window(win).Layout(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
