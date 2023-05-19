@@ -27,7 +27,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		height := gtx.Dp(ws.Window.Height)
 		width := gtx.Dp(ws.Window.Width)
 		defer clip.Rect{Max: image.Point{X: width, Y: height}}.Push(gtx.Ops).Pop()
-		paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 100})
+		paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 255})
 		return layout.Dimensions{
 			Size: image.Point{X: width, Y: height},
 		}
