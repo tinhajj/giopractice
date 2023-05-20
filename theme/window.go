@@ -9,6 +9,7 @@ import (
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
+	"gioui.org/unit"
 )
 
 type WindowStyle struct {
@@ -22,16 +23,48 @@ func Window(window *widget.Window) WindowStyle {
 }
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
-	return ws.Window.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-		op.Offset(ws.Window.Position.Round())
-		height := gtx.Dp(ws.Window.Height)
-		width := gtx.Dp(ws.Window.Width)
-		defer clip.Rect{Max: image.Point{X: width, Y: height}}.Push(gtx.Ops).Pop()
-		paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 255})
-		return layout.Dimensions{
-			Size: image.Point{X: width, Y: height},
-		}
+	defer op.Offset(ws.Window.Position.Round()).Push(gtx.Ops).Pop()
+
+	return widget.Border{
+		Color:        color.NRGBA{A: 255, R: 85, G: 170, B: 170},
+		CornerRadius: 0,
+		Width:        unit.Dp(4),
+	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.UniformInset(unit.Dp(4)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+			return ws.Window.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+				height := gtx.Dp(ws.Window.Height)
+				width := gtx.Dp(ws.Window.Width)
+				gtx.Constraints.Min = image.Point{}
+				gtx.Constraints.Max = image.Point{X: width, Y: height}
+
+				defer clip.Rect{Max: image.Point{X: width, Y: height}}.Push(gtx.Ops).Pop()
+				paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 255})
+
+				macro := op.Record(gtx.Ops)
+				dim := layout.Inset{
+					Top:    unit.Dp(5),
+					Bottom: unit.Dp(5),
+					Left:   unit.Dp(5),
+					Right:  0,
+				}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					return Label(gtx, unit.Sp(20), ws.Window.Title)
+				})
+				call := macro.Stop()
+
+				defer clip.Rect{
+					Min: image.Point{},
+					Max: dim.Size,
+				}.Push(gtx.Ops).Pop()
+				paint.Fill(gtx.Ops, color.NRGBA{R: 234, G: 255, B: 255, A: 255})
+				call.Add(gtx.Ops)
+
+				return layout.Dimensions{
+					Size: image.Point{X: width, Y: height},
+				}
+			})
+		})
 	})
+
 	// Process events that arrived between the last frame and this one.
 	//for _, e := range ws.Window.TopBar.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
 	//	switch e.Type {

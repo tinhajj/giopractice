@@ -1,8 +1,6 @@
 package widget
 
 import (
-	"image"
-
 	"gioui.org/f32"
 	"gioui.org/layout"
 	"gioui.org/unit"
@@ -28,13 +26,10 @@ func NewWindow(title string) *Window {
 }
 
 func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
-	height := gtx.Dp(w.Height)
-	width := gtx.Dp(w.Width)
-
-	widget(gtx)
+	dims := widget(gtx)
 
 	return layout.Dimensions{
-		Size:     image.Pt(height, width),
+		Size:     dims.Size,
 		Baseline: 0,
 	}
 }

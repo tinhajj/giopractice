@@ -16,7 +16,9 @@ func Label(gtx layout.Context, size unit.Sp, txt string) layout.Dimensions {
 	paint.ColorOp{Color: color.NRGBA{R: 0, B: 0, G: 0, A: 255}}.Add(gtx.Ops)
 	textColor := textColorMacro.Stop()
 
-	label := widget.Label{Alignment: text.Middle}
+	gtx.Constraints.Min.X = gtx.Constraints.Max.X
+
+	label := widget.Label{Alignment: text.Start}
 
 	return label.Layout(gtx, shaper, defaultFont, size, txt, textColor)
 }

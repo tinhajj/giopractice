@@ -8,6 +8,7 @@ import (
 	"ui/widget"
 
 	"gioui.org/app"
+	"gioui.org/f32"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -41,7 +42,8 @@ func draw(w *app.Window) error {
 	//active := true
 	//b := widget.NewBool(&active)
 
-	win := widget.NewWindow("Hello")
+	win := widget.NewWindow("XQuery")
+	win.Position = f32.Point{X: 100, Y: 100}
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
@@ -50,8 +52,6 @@ func draw(w *app.Window) error {
 			gtx := layout.NewContext(&ops, e)
 
 			paint.Fill(gtx.Ops, color.NRGBA{R: 105, G: 105, B: 105, A: 255})
-
-			theme.Label(gtx, unit.Sp(30), "Hello")
 
 			theme.Window(win).Layout(gtx)
 
