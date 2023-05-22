@@ -25,43 +25,74 @@ func Window(window *widget.Window) WindowStyle {
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	defer op.Offset(ws.Window.Position.Round()).Push(gtx.Ops).Pop()
 
-	return widget.Border{
-		Color:        color.NRGBA{A: 255, R: 85, G: 170, B: 170},
-		CornerRadius: 0,
-		Width:        unit.Dp(4),
+	return widget.OuterBorder{
+		Border: widget.Border{
+			Color:        color.NRGBA{A: 255, R: 85, G: 170, B: 170},
+			CornerRadius: 0,
+			Width:        unit.Dp(2),
+		},
 	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-		return layout.UniformInset(unit.Dp(4)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-			return ws.Window.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-				height := gtx.Dp(ws.Window.Height)
-				width := gtx.Dp(ws.Window.Width)
-				gtx.Constraints.Min = image.Point{}
-				gtx.Constraints.Max = image.Point{X: width, Y: height}
+		return ws.Window.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+			height := gtx.Dp(ws.Window.Height)
+			width := gtx.Dp(ws.Window.Width)
+			gtx.Constraints.Min = image.Point{}
+			gtx.Constraints.Max = image.Point{X: width, Y: height}
 
-				defer clip.Rect{Max: image.Point{X: width, Y: height}}.Push(gtx.Ops).Pop()
-				paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 255})
+			defer clip.Rect{Max: image.Point{X: width, Y: height}}.Push(gtx.Ops).Pop()
+			paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 255})
 
-				macro := op.Record(gtx.Ops)
-				dim := layout.Inset{
-					Top:    unit.Dp(5),
-					Bottom: unit.Dp(5),
-					Left:   unit.Dp(5),
-					Right:  0,
-				}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-					return Label(gtx, unit.Sp(20), ws.Window.Title)
-				})
-				call := macro.Stop()
+			layout.Stack{Alignment: layout.N}.Layout(gtx,
+				layout.Stacked(func(gtx layout.Context) layout.Dimensions {
+					macro := op.Record(gtx.Ops)
+					dim := layout.Inset{
+						Top:    unit.Dp(2),
+						Bottom: unit.Dp(2),
+						Left:   unit.Dp(2),
+						Right:  0,
+					}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+						return Label(gtx, unit.Sp(20), ws.Window.Title)
+					})
+					call := macro.Stop()
+					defer clip.Rect{
+						Min: image.Point{},
+						Max: dim.Size,
+					}.Push(gtx.Ops).Pop()
+					paint.Fill(gtx.Ops, color.NRGBA{R: 234, G: 255, B: 255, A: 255})
+					call.Add(gtx.Ops)
+					return dim
+				}),
+				layout.Stacked(func(gtx layout.Context) layout.Dimensions {
+					return widget.HR{Width: unit.Dp(20), Color: color.NRGBA{A: 255}}.Layout(gtx)
+				}),
+			)
+			// TitleBar
+			//macro := op.Record(gtx.Ops)
+			//dim := layout.Inset{
+			//	Top:    unit.Dp(2),
+			//	Bottom: unit.Dp(2),
+			//	Left:   unit.Dp(2),
+			//	Right:  0,
+			//}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+			//	return Label(gtx, unit.Sp(20), ws.Window.Title)
+			//})
+			//call := macro.Stop()
 
-				defer clip.Rect{
-					Min: image.Point{},
-					Max: dim.Size,
-				}.Push(gtx.Ops).Pop()
-				paint.Fill(gtx.Ops, color.NRGBA{R: 234, G: 255, B: 255, A: 255})
-				call.Add(gtx.Ops)
+			//defer clip.Rect{
+			//	Min: image.Point{},
+			//	Max: dim.Size,
+			//}.Push(gtx.Ops).Pop()
+			//paint.Fill(gtx.Ops, color.NRGBA{R: 234, G: 255, B: 255, A: 255})
+			//call.Add(gtx.Ops)
 
-				return layout.Dimensions{
-					Size: image.Point{X: width, Y: height},
-				}
-			})
+			//defer op.Offset(image.Point{
+			//	X: 0,
+			//	Y: dim.Size.Y,
+			//}).Push(gtx.Ops).Pop()
+			//widget.HR{Width: unit.Dp(2), Color: color.NRGBA{A: 255}}.Layout(gtx)
+
+			return layout.Dimensions{
+				Size: image.Point{X: width, Y: height},
+			}
 		})
 	})
 
