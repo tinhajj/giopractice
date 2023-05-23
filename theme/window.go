@@ -29,7 +29,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 		Border: widget.Border{
 			Color:        color.NRGBA{A: 255, R: 85, G: 170, B: 170},
 			CornerRadius: 0,
-			Width:        unit.Dp(2),
+			Width:        unit.Dp(1),
 		},
 	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return ws.Window.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
@@ -39,17 +39,12 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 			gtx.Constraints.Max = image.Point{X: width, Y: height}
 
 			defer clip.Rect{Max: image.Point{X: width, Y: height}}.Push(gtx.Ops).Pop()
-			paint.Fill(gtx.Ops, color.NRGBA{R: 0xff, G: 0xfe, B: 0xe0, A: 255})
+			paint.Fill(gtx.Ops, yellow)
 
-			layout.Stack{Alignment: layout.N}.Layout(gtx,
-				layout.Stacked(func(gtx layout.Context) layout.Dimensions {
+			layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					macro := op.Record(gtx.Ops)
-					dim := layout.Inset{
-						Top:    unit.Dp(2),
-						Bottom: unit.Dp(2),
-						Left:   unit.Dp(2),
-						Right:  0,
-					}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					dim := layout.UniformInset(unit.Dp(2)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 						return Label(gtx, unit.Sp(20), ws.Window.Title)
 					})
 					call := macro.Stop()
@@ -61,8 +56,8 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 					call.Add(gtx.Ops)
 					return dim
 				}),
-				layout.Stacked(func(gtx layout.Context) layout.Dimensions {
-					return widget.HR{Width: unit.Dp(20), Color: color.NRGBA{A: 255}}.Layout(gtx)
+				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+					return widget.HR{Width: unit.Dp(1), Color: black}.Layout(gtx)
 				}),
 			)
 			// TitleBar

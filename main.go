@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"log"
 	"os"
+	"ui/theme"
 	"ui/widget"
 
 	"gioui.org/app"
@@ -53,10 +54,10 @@ func draw(w *app.Window) error {
 
 			paint.Fill(gtx.Ops, color.NRGBA{R: 105, G: 105, B: 105, A: 255})
 
-			//theme.Window(win).Layout(gtx)
+			theme.Window(win).Layout(gtx)
 
 			op.Offset(image.Pt(300, 300)).Add(gtx.Ops)
-			stacked(gtx)
+			//stacked(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
