@@ -2,7 +2,6 @@ package main
 
 import (
 	"image"
-	"image/color"
 	"log"
 	"os"
 	"ui/theme"
@@ -52,12 +51,11 @@ func draw(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			paint.Fill(gtx.Ops, color.NRGBA{R: 105, G: 105, B: 105, A: 255})
+			paint.Fill(gtx.Ops, theme.Background)
 
 			theme.Window(win).Layout(gtx)
 
 			op.Offset(image.Pt(300, 300)).Add(gtx.Ops)
-			//stacked(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
