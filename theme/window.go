@@ -43,47 +43,17 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 
 			layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					return layout.Stack{}.Layout(gtx,
-						layout.Expanded(func(gtx layout.Context) layout.Dimensions {
-							defer clip.Rect{Max: gtx.Constraints.Min}.Push(gtx.Ops).Pop()
-							paint.Fill(gtx.Ops, color.NRGBA{R: 234, G: 255, B: 255, A: 255})
-							return layout.Dimensions{Size: gtx.Constraints.Min}
-						}),
-						layout.Stacked(func(gtx layout.Context) layout.Dimensions {
-							return layout.UniformInset(unit.Dp(2)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-								return Label(gtx, unit.Sp(20), ws.Window.Title)
-							})
-						}),
-					)
+					bg := widget.Background{Color: color.NRGBA{R: 234, G: 255, B: 255, A: 255}}
+					return bg.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+						return layout.UniformInset(unit.Dp(2)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+							return Label(gtx, unit.Sp(20), ws.Window.Title)
+						})
+					})
 				}),
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return widget.HR{Width: unit.Dp(1), Color: Black}.Layout(gtx)
 				}),
 			)
-			// TitleBar
-			//macro := op.Record(gtx.Ops)
-			//dim := layout.Inset{
-			//	Top:    unit.Dp(2),
-			//	Bottom: unit.Dp(2),
-			//	Left:   unit.Dp(2),
-			//	Right:  0,
-			//}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-			//	return Label(gtx, unit.Sp(20), ws.Window.Title)
-			//})
-			//call := macro.Stop()
-
-			//defer clip.Rect{
-			//	Min: image.Point{},
-			//	Max: dim.Size,
-			//}.Push(gtx.Ops).Pop()
-			//paint.Fill(gtx.Ops, color.NRGBA{R: 234, G: 255, B: 255, A: 255})
-			//call.Add(gtx.Ops)
-
-			//defer op.Offset(image.Point{
-			//	X: 0,
-			//	Y: dim.Size.Y,
-			//}).Push(gtx.Ops).Pop()
-			//widget.HR{Width: unit.Dp(2), Color: color.NRGBA{A: 255}}.Layout(gtx)
 
 			return layout.Dimensions{
 				Size: image.Point{X: width, Y: height},

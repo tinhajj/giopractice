@@ -11,11 +11,15 @@ type Window struct {
 	Height   unit.Dp
 	Width    unit.Dp
 	Position f32.Point
+
+	ResizeBars []*ResizeBar
 }
 
 func NewWindow(title string) *Window {
 	height := unit.Dp(500)
 	width := unit.Dp(400)
+
+	top := &ResizeBar{}
 
 	return &Window{
 		Title:    title,
