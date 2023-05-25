@@ -3,6 +3,7 @@ package widget
 import (
 	"gioui.org/f32"
 	"gioui.org/layout"
+	"gioui.org/op"
 	"gioui.org/unit"
 )
 
@@ -12,74 +13,28 @@ type Window struct {
 	Width    unit.Dp
 	Position f32.Point
 
-	ResizeBars []*ResizeBar
+	Resizer *Resizer
 }
 
 func NewWindow(title string) *Window {
 	height := unit.Dp(500)
 	width := unit.Dp(400)
 
-	top := &ResizeBar{}
-
 	return &Window{
 		Title:    title,
 		Height:   height,
 		Width:    width,
 		Position: f32.Point{},
+		Resizer:  NewResizer(),
 	}
 }
 
 func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
-	dims := widget(gtx)
+	defer op.Offset(w.Position.Round()).Push(gtx.Ops).Pop()
+	dims := w.Resizer.Layout(gtx, widget)
 
 	return layout.Dimensions{
 		Size:     dims.Size,
 		Baseline: 0,
 	}
 }
-
-//func (w *Window) Dragging() bool {
-//	return w.TopBar.Dragging || w.BottomBar.Dragging || w.LeftBar.Dragging || w.RightBar.Dragging
-//}
-//
-//func (w *Window) DragOffset() f32.Point {
-//	if w.TopBar.Dragging {
-//		return w.TopBar.DragOffset
-//	}
-//	if w.BottomBar.Dragging {
-//		return w.BottomBar.DragOffset
-//	}
-//	if w.LeftBar.Dragging {
-//		return w.LeftBar.DragOffset
-//	}
-//	if w.RightBar.Dragging {
-//		return w.RightBar.DragOffset
-//	}
-//
-//	return f32.Point{}
-//}
-//
-//type ResizeBar struct {
-//	Height int
-//	Width  int
-//
-//	Dragging bool
-//
-//	Drag gesture.Drag
-//
-//	StartPosition f32.Point
-//	DragOffset    f32.Point
-//
-//	StartWindowHeight int
-//}
-//
-//func NewResizeBar(height, width int) *ResizeBar {
-//	return &ResizeBar{
-//		Height:        height,
-//		Width:         width,
-//		Dragging:      false,
-//		Drag:          gesture.Drag{},
-//		StartPosition: f32.Point{},
-//		DragOffset:    f32.Point{},
-//	}
-//}

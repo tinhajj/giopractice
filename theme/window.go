@@ -6,7 +6,6 @@ import (
 	"ui/widget"
 
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/unit"
@@ -23,16 +22,14 @@ func Window(window *widget.Window) WindowStyle {
 }
 
 func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
-	defer op.Offset(ws.Window.Position.Round()).Push(gtx.Ops).Pop()
-
-	return widget.OuterBorder{
-		Border: widget.Border{
-			Color:        color.NRGBA{A: 255, R: 85, G: 170, B: 170},
-			CornerRadius: 0,
-			Width:        unit.Dp(1),
-		},
-	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-		return ws.Window.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+	return ws.Window.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return widget.OuterBorder{
+			Border: widget.Border{
+				Color:        color.NRGBA{A: 255, R: 85, G: 170, B: 170},
+				CornerRadius: 0,
+				Width:        unit.Dp(1),
+			},
+		}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 			height := gtx.Dp(ws.Window.Height)
 			width := gtx.Dp(ws.Window.Width)
 			gtx.Constraints.Min = image.Point{}
