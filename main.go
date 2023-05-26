@@ -43,7 +43,7 @@ func draw(w *app.Window) error {
 	//b := widget.NewBool(&active)
 
 	win := widget.NewWindow("XQuery")
-	win.Position = f32.Point{X: 100, Y: 100}
+	win.Position(f32.Point{X: 100, Y: 100})
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {

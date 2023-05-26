@@ -1,6 +1,8 @@
 package widget
 
 import (
+	"image"
+
 	"gioui.org/f32"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -8,10 +10,11 @@ import (
 )
 
 type Window struct {
-	Title    string
-	Height   unit.Dp
-	Width    unit.Dp
-	Position f32.Point
+	Title  string
+	Height unit.Dp
+	Width  unit.Dp
+
+	position f32.Point
 
 	Resizer *Resizer
 }
@@ -24,17 +27,29 @@ func NewWindow(title string) *Window {
 		Title:    title,
 		Height:   height,
 		Width:    width,
-		Position: f32.Point{},
+		position: f32.Point{},
 		Resizer:  NewResizer(),
 	}
 }
 
-func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
-	defer op.Offset(w.Position.Round()).Push(gtx.Ops).Pop()
-	dims := w.Resizer.Layout(gtx, widget)
+func (w *Window) Position(p f32.Point) {
+	w.position = p
+	w.Resizer.position = p
+}
 
-	return layout.Dimensions{
-		Size:     dims.Size,
-		Baseline: 0,
+func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
+	w.Resizer.Layout(gtx, layout.Dimensions{
+		Size: image.Point{X: gtx.Dp(w.Width), Y: gtx.Dp(w.Height)},
+	})
+
+	defer op.Offset(w.position.Round()).Push(gtx.Ops).Pop()
+
+	if ok, rb := w.Resizer.Dragging(); ok {
+		if rb.Direction == Vertical {
+			w.Height = unit.Dp(rb.Offset.Round().X)
+		}
+		w.position = w.position.Add(rb.Offset)
 	}
+
+	return widget(gtx)
 }
