@@ -12,153 +12,169 @@ import (
 	"gioui.org/unit"
 )
 
-type Resizer struct {
-	Top    *ResizeBar
-	Bottom *ResizeBar
-	Left   *ResizeBar
-	Right  *ResizeBar
+type resizer struct {
+	top    *resizebar
+	bottom *resizebar
+	left   *resizebar
+	right  *resizebar
 
-	Window *Window
+	window *Window
 
-	Thickness unit.Dp
+	previousDim layout.Dimensions
 
-	start  f32.Point
-	offset f32.Point
+	thickness unit.Dp
 }
 
-func NewResizer(win *Window) *Resizer {
-	return &Resizer{
-		Top:       &ResizeBar{Direction: Vertical, Positioner: true, Window: win, Kind: Opposite},
-		Bottom:    &ResizeBar{Direction: Vertical, Positioner: false, Window: win, Kind: Normal},
-		Left:      &ResizeBar{Direction: Horizontal, Positioner: true, Window: win, Kind: Opposite},
-		Right:     &ResizeBar{Direction: Horizontal, Positioner: false, Window: win, Kind: Normal},
-		Window:    win,
-		Thickness: unit.Dp(4),
+func newResizer(win *Window) *resizer {
+	return &resizer{
+		top:    &resizebar{direction: vertical, positioner: true, window: win, kind: opposite},
+		bottom: &resizebar{direction: vertical, positioner: false, window: win, kind: normal},
+		left:   &resizebar{direction: horizontal, positioner: true, window: win, kind: opposite},
+		right:  &resizebar{direction: horizontal, positioner: false, window: win, kind: normal},
+
+		window:    win,
+		thickness: unit.Dp(3),
 	}
 }
 
-func (r Resizer) Layout(gtx layout.Context) layout.Dimensions {
-	if ok, b := r.Dragging(); ok {
-		defer op.Offset(b.StartWindow.Position.Round()).Push(gtx.Ops).Pop()
+func (r *resizer) update(gtx layout.Context) {
+	r.top.update(gtx)
+	r.bottom.update(gtx)
+	r.left.update(gtx)
+	r.right.update(gtx)
+}
+
+func (r *resizer) layout(gtx layout.Context, dim layout.Dimensions) layout.Dimensions {
+	if ok, b := r.dragging(); ok {
+		defer op.Offset(b.startWindow.Position.Round()).Push(gtx.Ops).Pop()
+		dim = r.previousDim
 	} else {
-		defer op.Offset(r.Window.Position.Round()).Push(gtx.Ops).Pop()
+		defer op.Offset(r.window.Position.Round()).Push(gtx.Ops).Pop()
+		r.previousDim = dim
 	}
+
+	thickness := gtx.Dp(r.thickness)
 
 	var off op.TransformStack
 
-	var dims layout.Dimensions
-	if ok, b := r.Dragging(); ok {
-		win := b.StartWindow
-		dims = layout.Dimensions{
-			Size:     image.Point{X: gtx.Dp(win.Width), Y: gtx.Dp(win.Height)},
-			Baseline: 0,
-		}
-	} else {
-		win := r.Window
-		dims = layout.Dimensions{
-			Size:     image.Point{X: gtx.Dp(win.Width), Y: gtx.Dp(win.Height)},
-			Baseline: 0,
-		}
-	}
-
-	off = op.Offset(image.Point{X: 0, Y: -gtx.Dp(r.Thickness)}).Push(gtx.Ops)
-	r.Top.Layout(gtx, dims.Size.X, gtx.Dp(r.Thickness))
+	off = op.Offset(image.Pt(0, -thickness)).Push(gtx.Ops)
+	r.top.layout(gtx, dim.Size.X, thickness)
 	off.Pop()
 
-	off = op.Offset(image.Point{X: -gtx.Dp(unit.Dp(r.Thickness)), Y: 0}).Push(gtx.Ops)
-	r.Left.Layout(gtx, gtx.Dp(r.Thickness), dims.Size.Y)
+	off = op.Offset(image.Pt(-thickness, 0)).Push(gtx.Ops)
+	r.left.layout(gtx, thickness, dim.Size.Y)
 	off.Pop()
 
-	off = op.Offset(image.Point{X: 0, Y: dims.Size.Y}).Push(gtx.Ops)
-	r.Bottom.Layout(gtx, dims.Size.X, gtx.Dp(r.Thickness))
+	off = op.Offset(image.Pt(0, dim.Size.Y)).Push(gtx.Ops)
+	r.bottom.layout(gtx, dim.Size.X, thickness)
 	off.Pop()
 
-	off = op.Offset(image.Point{X: dims.Size.X, Y: 0}).Push(gtx.Ops)
-	r.Right.Layout(gtx, gtx.Dp(r.Thickness), dims.Size.Y)
+	off = op.Offset(image.Pt(dim.Size.X, 0)).Push(gtx.Ops)
+	r.right.layout(gtx, thickness, dim.Size.Y)
 	off.Pop()
 
 	return layout.Dimensions{}
 }
 
-func (r Resizer) Dragging() (bool, *ResizeBar) {
-	if r.Top.Drag.Dragging() {
-		return true, r.Top
+func (r *resizer) dragging() (bool, *resizebar) {
+	if r.top.drag.Dragging() {
+		return true, r.top
 	}
-	if r.Bottom.Drag.Dragging() {
-		return true, r.Bottom
+	if r.bottom.drag.Dragging() {
+		return true, r.bottom
 	}
-	if r.Left.Drag.Dragging() {
-		return true, r.Left
+	if r.left.drag.Dragging() {
+		return true, r.left
 	}
-	if r.Right.Drag.Dragging() {
-		return true, r.Right
+	if r.right.drag.Dragging() {
+		return true, r.right
 	}
+
 	return false, nil
 }
 
-type ResizeBar struct {
-	Direction  ResizeDirection
-	Positioner bool
-	Window     *Window
+type resizebar struct {
+	direction  resizeDirection
+	positioner bool
+	window     *Window
 
-	Kind Kind
+	kind kind
 
-	StartWindow       Window
-	StartDragPosition f32.Point
+	startWindow       Window
+	startDragPosition f32.Point
 
-	Offset f32.Point
+	offset f32.Point
 
-	Drag gesture.Drag
+	drag gesture.Drag
 }
 
-type ResizeDirection int
-
-type Kind int
-
-const (
-	Normal   Kind = 1
-	Opposite Kind = -1
-)
-
-const (
-	Vertical ResizeDirection = iota
-	Horizontal
-)
-
-func (r *ResizeBar) Layout(gtx layout.Context, width int, height int) layout.Dimensions {
-	for _, e := range r.Drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
+func (r *resizebar) update(gtx layout.Context) {
+	for _, e := range r.drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
 		switch e.Type {
 		case pointer.Press:
-			r.StartDragPosition = e.Position
-			r.StartWindow = *r.Window
+			r.startDragPosition = e.Position
+			r.startWindow = *r.window
 		case pointer.Drag:
-			r.Offset = e.Position.Sub(r.StartDragPosition)
+			r.offset = e.Position.Sub(r.startDragPosition)
 
-			if r.Direction == Vertical {
-				pxHeight := gtx.Dp(r.StartWindow.Height) + (r.Offset.Round().Y * int(r.Kind))
-				r.Window.Height = gtx.Metric.PxToDp(pxHeight)
+			if r.direction == vertical || r.direction == both {
+				pxHeight := gtx.Dp(r.startWindow.Height) + (r.offset.Round().Y * int(r.kind))
+				height, clamped := r.clamp(gtx.Metric.PxToDp(pxHeight))
+				r.window.Height = height
 
-				if r.Positioner {
-					r.Window.Position.Y = r.StartWindow.Position.Add(r.Offset).Y
+				if r.positioner && !clamped {
+					r.window.Position.Y = r.startWindow.Position.Add(r.offset).Y
 				}
 			}
 
-			if r.Direction == Horizontal {
-				pxWidth := gtx.Dp(r.StartWindow.Width) + (r.Offset.Round().X * int(r.Kind))
-				r.Window.Width = gtx.Metric.PxToDp(pxWidth)
+			if r.direction == horizontal || r.direction == both {
+				pxWidth := gtx.Dp(r.startWindow.Width) + (r.offset.Round().X * int(r.kind))
+				width, clamped := r.clamp(gtx.Metric.PxToDp(pxWidth))
+				r.window.Width = width
 
-				if r.Positioner {
-					r.Window.Position.X = r.StartWindow.Position.Add(r.Offset).X
+				if r.positioner && !clamped {
+					r.window.Position.X = r.startWindow.Position.Add(r.offset).X
 				}
 			}
 		case pointer.Release:
-			//r.Offset = f32.Point{}
-			//ws.Window.Position = ws.Window.Position.Add(ws.Window.BottomBar.DragOffset)
 		}
 	}
+}
 
+func (r *resizebar) layout(gtx layout.Context, width int, height int) layout.Dimensions {
 	defer clip.Rect{Max: image.Pt(width, height)}.Push(gtx.Ops).Pop()
-	r.Drag.Add(gtx.Ops)
+	if r.direction == horizontal {
+		pointer.CursorEastResize.Add(gtx.Ops)
+	}
+	if r.direction == vertical {
+		pointer.CursorNorthResize.Add(gtx.Ops)
+	}
+	//paint.Fill(gtx.Ops, color.NRGBA{G: 255, A: 100})
+	r.drag.Add(gtx.Ops)
 
 	return layout.Dimensions{Size: image.Pt(width, height)}
 }
+
+// clamp restricts the height or width of a window and if it was clamped
+func (r *resizebar) clamp(next unit.Dp) (unit.Dp, bool) {
+	if next < unit.Dp(300) {
+		return unit.Dp(300), true
+	}
+
+	return next, false
+}
+
+type resizeDirection int
+
+const (
+	vertical resizeDirection = iota
+	horizontal
+	both
+)
+
+type kind int
+
+const (
+	normal   kind = 1
+	opposite kind = -1
+)
