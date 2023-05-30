@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image"
 	"log"
 	"os"
 	"ui/theme"
@@ -42,8 +41,7 @@ func draw(w *app.Window) error {
 	//active := true
 	//b := widget.NewBool(&active)
 
-	win := widget.NewWindow("XQuery")
-	win.Position = f32.Point{X: 100, Y: 100}
+	win := widget.NewWindow("XQuery", f32.Pt(100, 100))
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
@@ -52,10 +50,9 @@ func draw(w *app.Window) error {
 			gtx := layout.NewContext(&ops, e)
 
 			paint.Fill(gtx.Ops, theme.Background)
-
 			theme.Window(win).Layout(gtx)
 
-			op.Offset(image.Pt(300, 300)).Add(gtx.Ops)
+			//op.Offset(image.Pt(300, 300)).Add(gtx.Ops)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
