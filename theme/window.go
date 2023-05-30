@@ -40,7 +40,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 
 			layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					return ws.Window.TitleBar.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					return ws.Window.TitleBar(gtx, func(gtx layout.Context) layout.Dimensions {
 						bg := widget.Background{Color: color.NRGBA{R: 234, G: 255, B: 255, A: 255}}
 						return bg.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 							return layout.UniformInset(unit.Dp(2)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {

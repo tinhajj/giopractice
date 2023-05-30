@@ -20,11 +20,12 @@ type Window struct {
 
 	Position f32.Point
 
+	// Titlebar
 	offset f32.Point
+	start  f32.Point
 	drag   gesture.Drag
 
-	resizer  *resizer
-	TitleBar *TitleBar
+	resizer *resizer
 }
 
 func NewWindow(title string, pos f32.Point) *Window {
@@ -39,15 +40,24 @@ func NewWindow(title string, pos f32.Point) *Window {
 		resizer:  &resizer{},
 	}
 	win.resizer = newResizer(win)
-	win.TitleBar = &TitleBar{
-		Window: win,
-	}
 	return win
 }
 
 func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
+	// TitleBar
+	for _, e := range w.drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
+		switch e.Type {
+		case pointer.Press:
+			w.start = e.Position
+		case pointer.Drag:
+			w.offset = e.Position.Sub(w.start)
+		case pointer.Release:
+			w.Position = w.Position.Add(w.offset)
+			w.offset = f32.Point{}
+		}
+	}
+
 	w.resizer.update(gtx)
-	w.TitleBar.update(gtx)
 
 	m := op.Record(gtx.Ops)
 	dims := widget(gtx)
@@ -56,45 +66,20 @@ func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensi
 	w.resizer.layout(gtx, dims)
 
 	defer op.Offset(w.Position.Round()).Push(gtx.Ops).Pop()
+	defer op.Offset(w.offset.Round()).Push(gtx.Ops).Pop()
 	c.Add(gtx.Ops)
 
 	return dims
 }
 
-type TitleBar struct {
-	Window *Window
-
-	startWindow       Window
-	startDragPosition f32.Point
-
-	offset f32.Point
-
-	drag gesture.Drag
-}
-
-func (t *TitleBar) update(gtx layout.Context) {
-	for _, e := range t.drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
-		switch e.Type {
-		case pointer.Press:
-			t.startDragPosition = e.Position
-			t.startWindow = *t.Window
-		case pointer.Drag:
-			t.offset = e.Position.Sub(t.startDragPosition)
-			t.Window.Position = t.startWindow.Position.Add(t.offset)
-		case pointer.Release:
-			t.offset = f32.Point{}
-		}
-	}
-}
-
-func (t *TitleBar) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
+func (w *Window) TitleBar(gtx layout.Context, widget layout.Widget) layout.Dimensions {
 	dims := widget(gtx)
 
-	if t.drag.Dragging() {
-		defer op.Offset(t.offset.Round().Mul(-1)).Push(gtx.Ops).Pop()
+	if w.drag.Dragging() {
+		defer op.Offset(w.offset.Round().Mul(-1)).Push(gtx.Ops).Pop()
 	}
 	defer clip.Rect{Max: dims.Size}.Push(gtx.Ops).Pop()
 	paint.Fill(gtx.Ops, color.NRGBA{G: 255, A: 100})
-	t.drag.Add(gtx.Ops)
+	w.drag.Add(gtx.Ops)
 	return dims
 }
