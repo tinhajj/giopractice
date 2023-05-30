@@ -1,7 +1,6 @@
 package widget
 
 import (
-	"fmt"
 	"image/color"
 
 	"gioui.org/f32"
@@ -20,6 +19,9 @@ type Window struct {
 	Width  unit.Dp
 
 	Position f32.Point
+
+	offset f32.Point
+	drag   gesture.Drag
 
 	resizer  *resizer
 	TitleBar *TitleBar
@@ -89,7 +91,6 @@ func (t *TitleBar) Layout(gtx layout.Context, widget layout.Widget) layout.Dimen
 	dims := widget(gtx)
 
 	if t.drag.Dragging() {
-		fmt.Println(t.offset.Round().Mul(-1))
 		defer op.Offset(t.offset.Round().Mul(-1)).Push(gtx.Ops).Pop()
 	}
 	defer clip.Rect{Max: dims.Size}.Push(gtx.Ops).Pop()
