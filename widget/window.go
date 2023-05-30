@@ -1,6 +1,7 @@
 package widget
 
 import (
+	"fmt"
 	"image/color"
 
 	"gioui.org/f32"
@@ -77,8 +78,9 @@ func (t *TitleBar) update(gtx layout.Context) {
 			t.startWindow = *t.Window
 		case pointer.Drag:
 			t.offset = e.Position.Sub(t.startDragPosition)
-			t.Window.Position.Y = t.startWindow.Position.Add(t.offset).Y
+			t.Window.Position = t.startWindow.Position.Add(t.offset)
 		case pointer.Release:
+			t.offset = f32.Point{}
 		}
 	}
 }
@@ -87,6 +89,7 @@ func (t *TitleBar) Layout(gtx layout.Context, widget layout.Widget) layout.Dimen
 	dims := widget(gtx)
 
 	if t.drag.Dragging() {
+		fmt.Println(t.offset.Round().Mul(-1))
 		defer op.Offset(t.offset.Round().Mul(-1)).Push(gtx.Ops).Pop()
 	}
 	defer clip.Rect{Max: dims.Size}.Push(gtx.Ops).Pop()
