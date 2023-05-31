@@ -1,6 +1,7 @@
 package widget
 
 import (
+	"image"
 	"image/color"
 
 	"gioui.org/f32"
@@ -57,15 +58,26 @@ func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensi
 		}
 	}
 
-	w.resizer.update(gtx)
+	//w.resizer.update(gtx)
 
 	m := op.Record(gtx.Ops)
 	dims := widget(gtx)
 	c := m.Stop()
 
-	w.resizer.layout(gtx, dims)
+	//w.resizer.layout(gtx, dims)
 
 	defer op.Offset(w.Position.Round()).Push(gtx.Ops).Pop()
+
+	// Resizer
+	pad := gtx.Dp(unit.Dp(10))
+	s := op.Offset(image.Pt(-pad, -pad)).Push(gtx.Ops)
+	r := clip.Rect{
+		Max: image.Pt(dims.Size.X+pad*2, dims.Size.Y+pad*2),
+	}.Push(gtx.Ops)
+	paint.Fill(gtx.Ops, color.NRGBA{R: 255, A: 100})
+	r.Pop()
+	s.Pop()
+
 	defer op.Offset(w.offset.Round()).Push(gtx.Ops).Pop()
 	c.Add(gtx.Ops)
 
