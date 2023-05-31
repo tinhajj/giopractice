@@ -2,6 +2,7 @@ package widget
 
 import (
 	"image"
+	"image/color"
 
 	"gioui.org/f32"
 	"gioui.org/gesture"
@@ -9,6 +10,7 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
+	"gioui.org/op/paint"
 	"gioui.org/unit"
 )
 
@@ -149,7 +151,7 @@ func (r *resizebar) layout(gtx layout.Context, width int, height int) layout.Dim
 	if r.direction == vertical {
 		pointer.CursorNorthResize.Add(gtx.Ops)
 	}
-	//paint.Fill(gtx.Ops, color.NRGBA{G: 255, A: 100})
+	paint.Fill(gtx.Ops, color.NRGBA{G: 255, A: 100})
 	r.drag.Add(gtx.Ops)
 
 	return layout.Dimensions{Size: image.Pt(width, height)}
