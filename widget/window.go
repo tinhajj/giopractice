@@ -21,10 +21,15 @@ type Window struct {
 
 	Position f32.Point
 
-	// Titlebar
 	offset f32.Point
 	start  f32.Point
-	drag   gesture.Drag
+	// Titlebar
+	titleDrag gesture.Drag
+
+	// Resizer
+	resizeDrag  gesture.Drag
+	startWidth  unit.Dp
+	startHeight unit.Dp
 
 	resizer *resizer
 }
@@ -46,12 +51,30 @@ func NewWindow(title string, pos f32.Point) *Window {
 
 func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
 	// TitleBar
-	for _, e := range w.drag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
+	for _, e := range w.titleDrag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
 		switch e.Type {
 		case pointer.Press:
 			w.start = e.Position
 		case pointer.Drag:
 			w.offset = e.Position.Sub(w.start)
+		case pointer.Release:
+			w.Position = w.Position.Add(w.offset)
+			w.offset = f32.Point{}
+		}
+	}
+
+	// Resize
+	for _, e := range w.resizeDrag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
+		switch e.Type {
+		case pointer.Press:
+			w.start = e.Position
+			w.startWidth = w.Width
+			w.startHeight = w.Height
+		case pointer.Drag:
+			x := gtx.Metric.PxToDp(e.Position.Sub(w.start).Round().X)
+			y := gtx.Metric.PxToDp(e.Position.Sub(w.start).Round().Y)
+			w.Width = w.startWidth + x
+			w.Height = w.startHeight + y
 		case pointer.Release:
 			w.Position = w.Position.Add(w.offset)
 			w.offset = f32.Point{}
@@ -69,11 +92,13 @@ func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensi
 	defer op.Offset(w.Position.Round()).Push(gtx.Ops).Pop()
 
 	// Resizer
-	pad := gtx.Dp(unit.Dp(10))
+	pad := gtx.Dp(unit.Dp(5))
 	s := op.Offset(image.Pt(-pad, -pad)).Push(gtx.Ops)
 	r := clip.Rect{
 		Max: image.Pt(dims.Size.X+pad*2, dims.Size.Y+pad*2),
 	}.Push(gtx.Ops)
+	w.resizeDrag.Add(gtx.Ops)
+	pointer.CursorGrab.Add(gtx.Ops)
 	paint.Fill(gtx.Ops, color.NRGBA{R: 255, A: 100})
 	r.Pop()
 	s.Pop()
@@ -87,11 +112,11 @@ func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensi
 func (w *Window) TitleBar(gtx layout.Context, widget layout.Widget) layout.Dimensions {
 	dims := widget(gtx)
 
-	if w.drag.Dragging() {
+	if w.titleDrag.Dragging() {
 		defer op.Offset(w.offset.Round().Mul(-1)).Push(gtx.Ops).Pop()
 	}
 	defer clip.Rect{Max: dims.Size}.Push(gtx.Ops).Pop()
 	paint.Fill(gtx.Ops, color.NRGBA{G: 255, A: 100})
-	w.drag.Add(gtx.Ops)
+	w.titleDrag.Add(gtx.Ops)
 	return dims
 }
