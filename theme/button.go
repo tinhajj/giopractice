@@ -31,19 +31,9 @@ func (b ButtonStyle) Layout(gtx layout.Context) layout.Dimensions {
 		var c color.NRGBA
 
 		if b.Button.Pressed() {
-			c = color.NRGBA{
-				R: 0,
-				G: 0,
-				B: 255,
-				A: 150,
-			}
+			c = color.NRGBA{R: 0, G: 0, B: 255, A: 150}
 		} else {
-			c = color.NRGBA{
-				R: 0,
-				G: 0,
-				B: 255,
-				A: 255,
-			}
+			c = color.NRGBA{R: 0, G: 0, B: 255, A: 255}
 		}
 
 		paint.Fill(gtx.Ops, c)

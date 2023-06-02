@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"ui/component"
 	"ui/theme"
 	"ui/widget"
 
@@ -41,7 +42,8 @@ func draw(w *app.Window) error {
 	//active := true
 	//b := widget.NewBool(&active)
 
-	win := widget.NewWindow("XQuery", f32.Pt(100, 100))
+	example := component.Example{}
+	win := widget.NewWindow("XQuery", f32.Pt(100, 100), example.Layout)
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
