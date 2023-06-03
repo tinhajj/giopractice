@@ -36,7 +36,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 			gtx.Constraints.Max = image.Point{X: width, Y: height}
 
 			defer clip.Rect{Max: image.Point{X: width, Y: height}}.Push(gtx.Ops).Pop()
-			paint.Fill(gtx.Ops, Yellow)
+			paint.Fill(gtx.Ops, Theme.Yellow)
 
 			children := []layout.FlexChild{}
 
@@ -51,12 +51,14 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 				})
 			})
 			hr := layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-				return widget.HR{Width: unit.Dp(1), Color: Black}.Layout(gtx)
+				return widget.HR{Width: unit.Dp(1), Color: Theme.Black}.Layout(gtx)
 			})
 			children = append(children, title, hr)
 
 			if ws.Window.ContentWidget != nil {
-				children = append(children, layout.Rigid(ws.Window.ContentWidget))
+				children = append(children, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+					return layout.UniformInset(unit.Dp(3)).Layout(gtx, ws.Window.ContentWidget)
+				}))
 			}
 
 			layout.Flex{Axis: layout.Vertical}.Layout(gtx, children...)

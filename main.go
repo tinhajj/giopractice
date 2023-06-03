@@ -37,7 +37,6 @@ func main() {
 
 func draw(w *app.Window) error {
 	var ops op.Ops
-	//th := material.NewTheme(gofont.Collection())
 
 	//active := true
 	//b := widget.NewBool(&active)
@@ -51,7 +50,7 @@ func draw(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			paint.Fill(gtx.Ops, theme.Background)
+			paint.Fill(gtx.Ops, theme.Theme.Bg)
 			theme.Window(win).Layout(gtx)
 
 			//op.Offset(image.Pt(300, 300)).Add(gtx.Ops)

@@ -20,5 +20,5 @@ func Label(gtx layout.Context, size unit.Sp, txt string) layout.Dimensions {
 
 	label := widget.Label{Alignment: text.Start}
 
-	return label.Layout(gtx, shaper, defaultFont, size, txt, textColor)
+	return label.Layout(gtx, Theme.Shaper, Theme.Font, size, txt, textColor)
 }
