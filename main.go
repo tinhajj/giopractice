@@ -40,13 +40,17 @@ func draw(w *app.Window) error {
 	//b := widget.NewBool(&active)
 
 	example := component.Example{}
-	win := widget.NewWindow("XQuery", f32.Pt(30, 30), example.Layout)
+	win := widget.NewWindow("XQuery 1", f32.Pt(30, 30), example.Layout)
 
 	example2 := component.Example{}
-	win2 := widget.NewWindow("XQuery", f32.Pt(40, 40), example2.Layout)
+	win2 := widget.NewWindow("XQuery 2", f32.Pt(40, 40), example2.Layout)
+
+	example3 := component.Example{}
+	win3 := widget.NewWindow("XQuery 3", f32.Pt(80, 80), example3.Layout)
 
 	canvas := component.Canvas{
-		Windows: []*widget.Window{win, win2},
+		Windows:  []*widget.Window{win, win2, win3},
+		GridSize: 0,
 	}
 
 	for windowEvent := range w.Events() {

@@ -1,7 +1,6 @@
 package component
 
 import (
-	"fmt"
 	"image"
 	"ui/theme"
 	"ui/widget"
@@ -110,14 +109,12 @@ func (c *Canvas) Layout(gtx layout.Context) layout.Dimensions {
 	defer op.Offset(c.offset.Round()).Push(gtx.Ops).Pop()
 	defer op.Offset(c.origin.Round()).Push(gtx.Ops).Pop()
 
-	// TODO: Something is wrong here, get the active window functionality working
 	for i, w := range c.Windows {
-		theme.Window(w).Layout(gtx)
 		if w.Clicked() {
-			fmt.Printf("%d was clicked\n", i)
 			op.InvalidateOp{}.Add(gtx.Ops)
 			c.BringIndexedWindowToFront(i)
 		}
+		theme.Window(w).Layout(gtx)
 	}
 
 	return layout.Dimensions{
@@ -125,6 +122,7 @@ func (c *Canvas) Layout(gtx layout.Context) layout.Dimensions {
 	}
 }
 
+// BringIndexedWindowToFront paints the given window last so it will show on top of all other windows
 func (c *Canvas) BringIndexedWindowToFront(i int) {
 	if i < 0 || i >= len(c.Windows) {
 		return
@@ -132,7 +130,7 @@ func (c *Canvas) BringIndexedWindowToFront(i int) {
 
 	front := c.Windows[i]
 	windows := append(c.Windows[:i], c.Windows[i+1:]...)
-	c.Windows = append([]*widget.Window{front}, windows...)
+	c.Windows = append(windows, front)
 
 	return
 }
