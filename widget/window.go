@@ -25,6 +25,10 @@ type Window struct {
 
 	offset f32.Point
 	start  f32.Point
+
+	click bool
+	mask  any
+
 	// Titlebar
 	titleDrag gesture.Drag
 
@@ -48,7 +52,22 @@ func NewWindow(title string, pos f32.Point, content layout.Widget) *Window {
 	}
 }
 
+func (w *Window) Clicked() bool {
+	return w.click
+}
+
 func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
+	// Active
+	w.click = false
+	for _, e := range gtx.Queue.Events(&w.click) {
+		if x, ok := e.(pointer.Event); ok {
+			switch x.Type {
+			case pointer.Press:
+				w.click = true
+			}
+		}
+	}
+
 	// TitleBar
 	for _, e := range w.titleDrag.Events(gtx.Metric, gtx.Queue, gesture.Both) {
 		switch e.Type {
@@ -113,7 +132,26 @@ func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensi
 	s.Pop()
 
 	defer op.Offset(w.offset.Round()).Push(gtx.Ops).Pop()
+
+	// Mask
+	rect := clip.Rect{Max: dims.Size}.Push(gtx.Ops)
+	pointer.InputOp{
+		Tag:   &w.mask,
+		Types: allPointers,
+	}.Add(gtx.Ops)
+	rect.Pop()
+
+	// Draw the window
 	c.Add(gtx.Ops)
+
+	// Active Click
+	defer clip.Rect{Max: dims.Size}.Push(gtx.Ops).Pop()
+	ps := pointer.PassOp{}.Push(gtx.Ops)
+	pointer.InputOp{
+		Tag:   &w.click,
+		Types: pointer.Press | pointer.Release,
+	}.Add(gtx.Ops)
+	ps.Pop()
 
 	return dims
 }

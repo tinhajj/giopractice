@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"ui/component"
-	"ui/theme"
 	"ui/widget"
 
 	"gioui.org/app"
@@ -12,7 +11,6 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/op/paint"
 	"gioui.org/unit"
 )
 
@@ -42,7 +40,14 @@ func draw(w *app.Window) error {
 	//b := widget.NewBool(&active)
 
 	example := component.Example{}
-	win := widget.NewWindow("XQuery", f32.Pt(100, 100), example.Layout)
+	win := widget.NewWindow("XQuery", f32.Pt(30, 30), example.Layout)
+
+	example2 := component.Example{}
+	win2 := widget.NewWindow("XQuery", f32.Pt(40, 40), example2.Layout)
+
+	canvas := component.Canvas{
+		Windows: []*widget.Window{win, win2},
+	}
 
 	for windowEvent := range w.Events() {
 		switch e := windowEvent.(type) {
@@ -50,10 +55,13 @@ func draw(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			paint.Fill(gtx.Ops, theme.Theme.Bg)
-			theme.Window(win).Layout(gtx)
+			//paint.Fill(gtx.Ops, theme.Theme.Bg)
+
+			//theme.Window(win).Layout(gtx)
 
 			//op.Offset(image.Pt(300, 300)).Add(gtx.Ops)
+
+			canvas.Layout(gtx)
 
 			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
