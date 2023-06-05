@@ -11,14 +11,13 @@ import (
 	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget"
-	"gioui.org/widget/material"
 )
 
-func Button(th *material.Theme, clickable *widget.Clickable, label string) ButtonStyle {
+func Button(clickable *widget.Clickable, label string) ButtonStyle {
 	return ButtonStyle{
 		Button: clickable,
 		Label:  label,
-		Theme:  th,
+		Font:   text.Font{},
 	}
 }
 
@@ -49,7 +48,7 @@ func (b ButtonStyle) Layout(gtx layout.Context) layout.Dimensions {
 			colOp := colMacro.Stop()
 
 			return layout.UniformInset(unit.Dp(5)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-				return widget.Label{}.Layout(gtx, b.Theme.Shaper, b.Font, Theme.TextSize, b.Label, colOp)
+				return widget.Label{}.Layout(gtx, Theme.Shaper, b.Font, Theme.TextSize, b.Label, colOp)
 			})
 		})
 	})
@@ -58,6 +57,5 @@ func (b ButtonStyle) Layout(gtx layout.Context) layout.Dimensions {
 type ButtonStyle struct {
 	Button *widget.Clickable
 	Label  string
-	Theme  *material.Theme
 	Font   text.Font
 }
