@@ -28,7 +28,7 @@ func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
 			return layout.Spacer{Width: 20}.Layout(gtx)
 		} else if i == 2 {
 			//return layout.Spacer{Width: 20}.Layout(gtx)
-			return theme.Checkbox(&e.On).Layout(gtx)
+			return theme.Checkbox(&e.on).Layout(gtx)
 		} else if i == 3 {
 			return layout.Spacer{Width: 20}.Layout(gtx)
 		} else {

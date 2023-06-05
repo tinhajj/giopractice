@@ -36,9 +36,6 @@ func main() {
 func draw(w *app.Window) error {
 	var ops op.Ops
 
-	active := true
-	//b := widget.NewBool(&active)
-
 	example := component.Example{}
 	win := widget.NewWindow("XQuery 1", f32.Pt(30, 30), example.Layout)
 
