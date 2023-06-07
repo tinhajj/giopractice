@@ -28,27 +28,46 @@ func NewExample() Example {
 func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
 	th := material.NewTheme(gofont.Collection())
 
-	dim := material.List(th, &e.list).Layout(gtx, 9, func(gtx layout.Context, i int) layout.Dimensions {
+	fmt.Println("EXAMPLE LAYOUT")
+	fmt.Println("LAYOUT CONSTRAINT", gtx.Constraints)
+
+	return material.List(th, &e.list).Layout(gtx, 9, func(gtx layout.Context, i int) layout.Dimensions {
 		if i == 0 {
-			return theme.Button(&e.submitBtn, "Submit").Layout(gtx)
+			dim := theme.Button(&e.submitBtn, "Submit").Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		} else if i == 1 {
-			return layout.Spacer{Width: 20}.Layout(gtx)
+			dim := layout.Spacer{Width: 80}.Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		} else if i == 2 {
-			return theme.Checkbox(&e.lightsCheckbox, "Lights").Layout(gtx)
+			dim := theme.Checkbox(&e.lightsCheckbox, "Lights").Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		} else if i == 3 {
-			return layout.Spacer{Width: 20}.Layout(gtx)
+			dim := layout.Spacer{Width: 20}.Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		} else if i == 4 {
-			return theme.Checkbox(&e.bigCheckbox, "Big").Layout(gtx)
+			dim := theme.Checkbox(&e.bigCheckbox, "Big").Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		} else if i == 5 {
-			return layout.Spacer{Width: 20}.Layout(gtx)
+			dim := layout.Spacer{Width: 40}.Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		} else if i == 6 {
-			return theme.Checkbox(&e.flipCheckbox, "Flip").Layout(gtx)
+			dim := theme.Checkbox(&e.flipCheckbox, "Flip").Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		} else if i == 7 {
-			return layout.Spacer{Width: 60}.Layout(gtx)
+			dim := layout.Spacer{Width: 60}.Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		} else {
-			return theme.Button(&e.cancelBtn, "Cancel").Layout(gtx)
+			dim := theme.Button(&e.cancelBtn, "Cancel").Layout(gtx)
+			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
+			return dim
 		}
 	})
-	fmt.Println("dim", dim)
-	return dim
 }
