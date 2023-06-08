@@ -11,7 +11,7 @@ import (
 )
 
 type Example struct {
-	list widget.List
+	List widget.List
 
 	submitBtn widget.Clickable
 	cancelBtn widget.Clickable
@@ -31,13 +31,13 @@ func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
 	fmt.Println("EXAMPLE LAYOUT")
 	fmt.Println("LAYOUT CONSTRAINT", gtx.Constraints)
 
-	return material.List(th, &e.list).Layout(gtx, 9, func(gtx layout.Context, i int) layout.Dimensions {
+	return material.List(th, &e.List).Layout(gtx, 9, func(gtx layout.Context, i int) layout.Dimensions {
 		if i == 0 {
 			dim := theme.Button(&e.submitBtn, "Submit").Layout(gtx)
 			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
 			return dim
 		} else if i == 1 {
-			dim := layout.Spacer{Width: 80}.Layout(gtx)
+			dim := layout.Spacer{Height: 500, Width: 80}.Layout(gtx)
 			fmt.Printf("%d constraint: %+v dim: %+v\n", i, gtx.Constraints, dim)
 			return dim
 		} else if i == 2 {

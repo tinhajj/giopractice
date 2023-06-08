@@ -13,4 +13,4 @@ type Label = widget.Label
 type Bool = widget.Bool
 type List = widget.List
 
-var allPointers = pointer.Press | pointer.Release | pointer.Move | pointer.Drag | pointer.Enter | pointer.Leave | pointer.Scroll
+var AllPointers = pointer.Press | pointer.Release | pointer.Move | pointer.Drag | pointer.Enter | pointer.Leave | pointer.Scroll

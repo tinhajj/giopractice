@@ -137,7 +137,7 @@ func (w *Window) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensi
 	rect := clip.Rect{Max: dims.Size}.Push(gtx.Ops)
 	pointer.InputOp{
 		Tag:   &w.mask,
-		Types: allPointers,
+		Types: AllPointers,
 	}.Add(gtx.Ops)
 	rect.Pop()
 
