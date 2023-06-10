@@ -3,6 +3,7 @@ package theme
 import (
 	"image/color"
 
+	"gioui.org/font"
 	"gioui.org/font/gofont"
 	"gioui.org/text"
 	"gioui.org/unit"
@@ -37,7 +38,7 @@ var Theme struct {
 	Palette
 	TextSize unit.Sp
 
-	Font text.Font
+	Font font.Font
 }
 
 // Initialize the theme
@@ -49,7 +50,7 @@ func init() {
 		Shaper *text.Shaper
 		Palette
 		TextSize unit.Sp
-		Font     text.Font
+		Font     font.Font
 	}{
 		Shaper: shaper,
 		Palette: Palette{
@@ -60,6 +61,6 @@ func init() {
 			LightGray: color.NRGBA{R: 211, G: 211, B: 211, A: 255},
 		},
 		TextSize: unit.Sp(16),
-		Font:     text.Font{},
+		Font:     font.Font{},
 	}
 }

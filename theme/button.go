@@ -4,11 +4,11 @@ import (
 	"image"
 	"image/color"
 
+	"gioui.org/font"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
-	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget"
 )
@@ -17,7 +17,7 @@ func Button(clickable *widget.Clickable, label string) ButtonStyle {
 	return ButtonStyle{
 		Button: clickable,
 		Label:  label,
-		Font:   text.Font{},
+		Font:   font.Font{},
 	}
 }
 
@@ -36,7 +36,7 @@ func (b ButtonStyle) Layout(gtx layout.Context) layout.Dimensions {
 			var c color.NRGBA
 
 			if b.Button.Pressed() {
-				c = color.NRGBA{R: 211, G: 211, B: 211, A: 255}
+				c = color.NRGBA{R: 235, G: 235, B: 235, A: 255}
 			} else {
 				c = Theme.White
 			}
@@ -57,5 +57,5 @@ func (b ButtonStyle) Layout(gtx layout.Context) layout.Dimensions {
 type ButtonStyle struct {
 	Button *widget.Clickable
 	Label  string
-	Font   text.Font
+	Font   font.Font
 }
