@@ -64,3 +64,22 @@ func init() {
 		Font:     font.Font{},
 	}
 }
+
+// clamp1 limits v to range [0..1].
+func clamp1(v float32) float32 {
+	if v >= 1 {
+		return 1
+	} else if v <= 0 {
+		return 0
+	} else {
+		return v
+	}
+}
+
+func max(a, b int) int {
+	if a >= b {
+		return a
+	} else {
+		return b
+	}
+}
