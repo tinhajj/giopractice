@@ -1,19 +1,18 @@
 package theme
 
-// This is copied almost verbatim from material, but uses our scrollbar.
-
 import (
-	"context"
 	"image"
+	"image/color"
 	"math"
-	rtrace "runtime/trace"
-
-	"ui/widget"
 
 	"ui/layout"
+	"ui/widget"
 
+	"gioui.org/io/pointer"
 	"gioui.org/op"
 	"gioui.org/op/clip"
+	"gioui.org/op/paint"
+	"gioui.org/unit"
 )
 
 // fromListPosition converts a layout.Position into two floats representing
@@ -37,6 +36,183 @@ func fromListPosition(lp layout.Position, elements int, majorAxisSize int) (star
 	return viewportStart, clamp1(viewportStart + visibleFraction)
 }
 
+// rangeIsScrollable returns whether the viewport described by start and end
+// is smaller than the underlying content (such that it can be scrolled).
+// start and end are expected to each be in the range [0,1], and start
+// must be less than or equal to end.
+func rangeIsScrollable(start, end float32) bool {
+	return end-start < 1
+}
+
+// ScrollTrackStyle configures the presentation of a track for a scroll area.
+type ScrollTrackStyle struct {
+	// MajorPadding and MinorPadding along the major and minor axis of the
+	// scrollbar's track. This is used to keep the scrollbar from touching
+	// the edges of the content area.
+	MajorPadding, MinorPadding unit.Dp
+	// Color of the track background.
+	Color color.NRGBA
+}
+
+// ScrollIndicatorStyle configures the presentation of a scroll indicator.
+type ScrollIndicatorStyle struct {
+	// MajorMinLen is the smallest that the scroll indicator is allowed to
+	// be along the major axis.
+	MajorMinLen unit.Dp
+	// MinorWidth is the width of the scroll indicator across the minor axis.
+	MinorWidth unit.Dp
+	// Color and HoverColor are the normal and hovered colors of the scroll
+	// indicator.
+	Color, HoverColor color.NRGBA
+	// CornerRadius is the corner radius of the rectangular indicator. 0
+	// will produce square corners. 0.5*MinorWidth will produce perfectly
+	// round corners.
+	CornerRadius unit.Dp
+}
+
+// ScrollbarStyle configures the presentation of a scrollbar.
+type ScrollbarStyle struct {
+	Scrollbar *widget.Scrollbar
+	Track     ScrollTrackStyle
+	Indicator ScrollIndicatorStyle
+}
+
+// Scrollbar configures the presentation of a scrollbar using the provided
+// theme and state.
+func Scrollbar(th *Theme, state *widget.Scrollbar) ScrollbarStyle {
+	lightFg := th.Palette.Fg
+	lightFg.A = 150
+	darkFg := lightFg
+	darkFg.A = 200
+
+	return ScrollbarStyle{
+		Scrollbar: state,
+		Track: ScrollTrackStyle{
+			MajorPadding: 2,
+			MinorPadding: 2,
+		},
+		Indicator: ScrollIndicatorStyle{
+			MajorMinLen:  th.FingerSize,
+			MinorWidth:   6,
+			CornerRadius: 3,
+			Color:        lightFg,
+			HoverColor:   darkFg,
+		},
+	}
+}
+
+// Width returns the minor axis width of the scrollbar in its current
+// configuration (taking padding for the scroll track into account).
+func (s ScrollbarStyle) Width() unit.Dp {
+	return s.Indicator.MinorWidth + s.Track.MinorPadding + s.Track.MinorPadding
+}
+
+// Layout the scrollbar.
+func (s ScrollbarStyle) Layout(gtx layout.Context, axis layout.Axis, viewportStart, viewportEnd float32) layout.Dimensions {
+	if !rangeIsScrollable(viewportStart, viewportEnd) {
+		return layout.Dimensions{}
+	}
+
+	// Set minimum constraints in an axis-independent way, then convert to
+	// the correct representation for the current axis.
+	convert := axis.Convert
+	maxMajorAxis := convert(gtx.Constraints.Max).X
+	gtx.Constraints.Min.X = maxMajorAxis
+	gtx.Constraints.Min.Y = gtx.Dp(s.Width())
+	gtx.Constraints.Min = convert(gtx.Constraints.Min)
+	gtx.Constraints.Max = gtx.Constraints.Min
+
+	s.Scrollbar.Layout(gtx, axis, viewportStart, viewportEnd)
+
+	// Darken indicator if hovered.
+	if s.Scrollbar.IndicatorHovered() {
+		s.Indicator.Color = s.Indicator.HoverColor
+	}
+
+	return s.layout(gtx, axis, viewportStart, viewportEnd)
+}
+
+// layout the scroll track and indicator.
+func (s ScrollbarStyle) layout(gtx layout.Context, axis layout.Axis, viewportStart, viewportEnd float32) layout.Dimensions {
+	inset := layout.Inset{
+		Top:    s.Track.MajorPadding,
+		Bottom: s.Track.MajorPadding,
+		Left:   s.Track.MinorPadding,
+		Right:  s.Track.MinorPadding,
+	}
+	if axis == layout.Horizontal {
+		inset.Top, inset.Bottom, inset.Left, inset.Right = inset.Left, inset.Right, inset.Top, inset.Bottom
+	}
+	// Capture the outer constraints because layout.Stack will reset
+	// the minimum to zero.
+	outerConstraints := gtx.Constraints
+
+	return layout.Stack{}.Layout(gtx,
+		layout.Expanded(func(gtx layout.Context) layout.Dimensions {
+			// Lay out the draggable track underneath the scroll indicator.
+			area := image.Rectangle{
+				Max: gtx.Constraints.Min,
+			}
+			pointerArea := clip.Rect(area)
+			defer pointerArea.Push(gtx.Ops).Pop()
+			s.Scrollbar.AddDrag(gtx.Ops)
+
+			// Stack a normal clickable area on top of the draggable area
+			// to capture non-dragging clicks.
+			defer pointer.PassOp{}.Push(gtx.Ops).Pop()
+			defer pointerArea.Push(gtx.Ops).Pop()
+			s.Scrollbar.AddTrack(gtx.Ops)
+
+			paint.FillShape(gtx.Ops, s.Track.Color, clip.Rect(area).Op())
+			return layout.Dimensions{}
+		}),
+		layout.Stacked(func(gtx layout.Context) layout.Dimensions {
+			gtx.Constraints = outerConstraints
+			return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+				// Use axis-independent constraints.
+				gtx.Constraints.Min = axis.Convert(gtx.Constraints.Min)
+				gtx.Constraints.Max = axis.Convert(gtx.Constraints.Max)
+
+				// Compute the pixel size and position of the scroll indicator within
+				// the track.
+				trackLen := gtx.Constraints.Min.X
+				viewStart := int(math.Round(float64(viewportStart) * float64(trackLen)))
+				viewEnd := int(math.Round(float64(viewportEnd) * float64(trackLen)))
+				indicatorLen := max(viewEnd-viewStart, gtx.Dp(s.Indicator.MajorMinLen))
+				if viewStart+indicatorLen > trackLen {
+					viewStart = trackLen - indicatorLen
+				}
+				indicatorDims := axis.Convert(image.Point{
+					X: indicatorLen,
+					Y: gtx.Dp(s.Indicator.MinorWidth),
+				})
+				radius := gtx.Dp(s.Indicator.CornerRadius)
+
+				// Lay out the indicator.
+				offset := axis.Convert(image.Pt(viewStart, 0))
+				defer op.Offset(offset).Push(gtx.Ops).Pop()
+				paint.FillShape(gtx.Ops, s.Indicator.Color, clip.RRect{
+					Rect: image.Rectangle{
+						Max: indicatorDims,
+					},
+					SW: radius,
+					NW: radius,
+					NE: radius,
+					SE: radius,
+				}.Op(gtx.Ops))
+
+				// Add the indicator pointer hit area.
+				area := clip.Rect(image.Rectangle{Max: indicatorDims})
+				defer pointer.PassOp{}.Push(gtx.Ops).Pop()
+				defer area.Push(gtx.Ops).Pop()
+				s.Scrollbar.AddIndicator(gtx.Ops)
+
+				return layout.Dimensions{Size: axis.Convert(gtx.Constraints.Min)}
+			})
+		}),
+	)
+}
+
 // AnchorStrategy defines a means of attaching a scrollbar to content.
 type AnchorStrategy uint8
 
@@ -53,162 +229,66 @@ const (
 // ListStyle configures the presentation of a layout.List with a scrollbar.
 type ListStyle struct {
 	state *widget.List
-	Main  ScrollbarStyle
-	Cross ScrollbarStyle
+	ScrollbarStyle
 	AnchorStrategy
-	EnableCrossScrolling bool
 }
 
 // List constructs a ListStyle using the provided theme and state.
 func List(th *Theme, state *widget.List) ListStyle {
 	return ListStyle{
-		state: state,
-		Cross: Scrollbar(th, &state.Cross),
-		Main:  Scrollbar(th, &state.Main),
+		state:          state,
+		ScrollbarStyle: Scrollbar(th, &state.Scrollbar),
 	}
 }
 
 // Layout the list and its scrollbar.
 func (l ListStyle) Layout(gtx layout.Context, length int, w layout.ListElement) layout.Dimensions {
-	defer rtrace.StartRegion(context.Background(), "theme.ListStyle.Layout").End()
-
-	// originalConstraints are the constraints that the user passed to ListStyle.Layout. These are the constraints in
-	// which the list and its scrollbars have to fit.
 	originalConstraints := gtx.Constraints
 
-	// Determine how much space the scrollbars occupy.
-	mainBarWidth := gtx.Dp(l.Main.Width())
-	crossBarWidth := gtx.Dp(l.Cross.Width())
+	// Determine how much space the scrollbar occupies.
+	barWidth := gtx.Dp(l.Width())
 
 	if l.AnchorStrategy == Occupy {
+
 		// Reserve space for the scrollbar using the gtx constraints.
 		max := l.state.Axis.Convert(gtx.Constraints.Max)
 		min := l.state.Axis.Convert(gtx.Constraints.Min)
-		max.Y -= mainBarWidth
+		max.Y -= barWidth
 		if max.Y < 0 {
 			max.Y = 0
 		}
-		min.Y -= mainBarWidth
+		min.Y -= barWidth
 		if min.Y < 0 {
 			min.Y = 0
-		}
-		if l.EnableCrossScrolling {
-			max.X -= crossBarWidth
-			if max.X < 0 {
-				max.X = 0
-			}
-			min.X -= crossBarWidth
-			if min.X < 0 {
-				min.X = 0
-			}
 		}
 		gtx.Constraints.Max = l.state.Axis.Convert(max)
 		gtx.Constraints.Min = l.state.Axis.Convert(min)
 	}
 
-	// tightListConstraints are the original constraints reduced by the space reserved for scrollbars. These will limit
-	// the visible portion of the layout.List.
-	tightListConstraints := gtx.Constraints
-
-	if l.EnableCrossScrolling {
-		// When cross scrolling is enabled we allow the list to draw itself however wide it wants. We'll later pan and
-		// crop the visible portion.
-		*layout.Cross(l.state.Axis, &gtx.Constraints.Max) = 1e6
-	}
-
-	m := op.Record(gtx.Ops)
-	if l.EnableCrossScrolling {
-		// Extend the minimum width to the largest element we've seen so far. layout.List.Layout adds a scroll handler
-		// to the area covered by the minimum constraint or the widest element it saw during that call to Layout. By
-		// setting the minimum to the widest known element we ensure that the scroll region doesn't shrink when large
-		// items go out of view.
-		if l.state.Widest > gtx.Constraints.Min.X {
-			gtx.Constraints.Min.X = l.state.Widest
-		}
-	}
 	listDims := l.state.List.Layout(gtx, length, w)
-	// crossWidth is the total, unconstrained width of the visible list elements.
-	crossWidth := l.state.Axis.Convert(listDims.Size).Y
-	// Use the widest width we've seen so far. That way, the scrollbar's handle size only changes when new, larger items
-	// appear, not when large items disappear.
-	if crossWidth > l.state.Widest {
-		l.state.Widest = crossWidth
-	} else {
-		crossWidth = l.state.Widest
-	}
-	// Limit listDims.Size to the size of the visible portion.
-	listDims.Size = tightListConstraints.Constrain(listDims.Size)
-	call := m.Stop()
-
-	// Constrain to the original constraints and display cropped & panned version of the list.
 	gtx.Constraints = originalConstraints
-	defer clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops).Pop()
-	delta := l.state.Cross.ScrollDistance()
-	l.state.CrossOffset += delta * float32(crossWidth)
-	if max := float32(crossWidth - listDims.Size.X); l.state.CrossOffset > max {
-		l.state.CrossOffset = max
-	}
-	if l.state.CrossOffset < 0 {
-		l.state.CrossOffset = 0
-	}
-	off := -int(math.Round(float64(l.state.CrossOffset)))
-	stack := op.Offset(image.Pt(off, 0)).Push(gtx.Ops)
-	call.Add(gtx.Ops)
-	stack.Pop()
 
-	// Draw the scrollbars.
-	mainAnchoring := layout.NE
-	crossAnchoring := layout.SW
+	// Draw the scrollbar.
+	anchoring := layout.E
 	if l.state.Axis == layout.Horizontal {
-		mainAnchoring = layout.SW
-		crossAnchoring = layout.NE
+		anchoring = layout.S
 	}
-	majorAxisSize := *layout.Main(l.state.Axis, &listDims.Size)
-
+	majorAxisSize := l.state.Axis.Convert(listDims.Size).X
+	start, end := fromListPosition(l.state.Position, length, majorAxisSize)
 	// layout.Direction respects the minimum, so ensure that the
 	// scrollbar will be drawn on the correct edge even if the provided
 	// layout.Context had a zero minimum constraint.
 	gtx.Constraints.Min = listDims.Size
 	if l.AnchorStrategy == Occupy {
 		min := l.state.Axis.Convert(gtx.Constraints.Min)
-		min.Y += mainBarWidth
-		if l.EnableCrossScrolling {
-			min.X += crossBarWidth
-		}
+		min.Y += barWidth
 		gtx.Constraints.Min = l.state.Axis.Convert(min)
 	}
-
-	mainAnchoring.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-		if l.EnableCrossScrolling {
-			// Make sure the two scrollbars don't overlap, by leaving a gap in the corner where they meet.
-			*layout.Main(l.state.Axis, &gtx.Constraints.Min) -= crossBarWidth
-			*layout.Main(l.state.Axis, &gtx.Constraints.Max) -= crossBarWidth
-			gtx.Constraints = layout.Normalize(gtx.Constraints)
-		}
-
-		start, end := fromListPosition(l.state.Position, length, majorAxisSize)
-		return l.Main.Layout(gtx, l.state.Axis, start, end)
+	anchoring.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return l.ScrollbarStyle.Layout(gtx, l.state.Axis, start, end)
 	})
 
-	if l.EnableCrossScrolling {
-		crossAnchoring.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-			// Make sure the two scrollbars don't overlap, by leaving a gap in the corner where they meet.
-			*layout.Cross(l.state.Axis, &gtx.Constraints.Min) -= mainBarWidth
-			*layout.Cross(l.state.Axis, &gtx.Constraints.Max) -= mainBarWidth
-			gtx.Constraints = layout.Normalize(gtx.Constraints)
-
-			start, end := float32(0), float32(1)
-			renderedWidth := *layout.Cross(l.state.Axis, &listDims.Size)
-			if crossWidth > renderedWidth {
-				width := float32(renderedWidth) / float32(crossWidth)
-				start = float32(l.state.CrossOffset) / float32(crossWidth)
-				end = start + width
-			}
-			return l.Cross.Layout(gtx, (l.state.Axis+1)%2, start, end)
-		})
-	}
-
-	if delta := l.state.Main.ScrollDistance(); delta != 0 {
+	if delta := l.state.ScrollDistance(); delta != 0 {
 		// Handle any changes to the list position as a result of user interaction
 		// with the scrollbar.
 		l.state.List.ScrollBy(delta * float32(length))
@@ -217,10 +297,7 @@ func (l ListStyle) Layout(gtx layout.Context, length int, w layout.ListElement) 
 	if l.AnchorStrategy == Occupy {
 		// Increase the width to account for the space occupied by the scrollbar.
 		cross := l.state.Axis.Convert(listDims.Size)
-		cross.Y += mainBarWidth
-		if l.EnableCrossScrolling {
-			cross.X += crossBarWidth
-		}
+		cross.Y += barWidth
 		listDims.Size = l.state.Axis.Convert(cross)
 	}
 
