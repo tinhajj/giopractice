@@ -79,10 +79,10 @@ type ScrollbarStyle struct {
 
 // Scrollbar configures the presentation of a scrollbar using the provided
 // theme and state.
-func Scrollbar(th *Theme, state *widget.Scrollbar) ScrollbarStyle {
-	lightFg := th.Palette.Fg
+func Scrollbar(state *widget.Scrollbar) ScrollbarStyle {
+	lightFg := Theme.Fg
 	lightFg.A = 150
-	darkFg := lightFg
+	darkFg := Theme.Bg
 	darkFg.A = 200
 
 	return ScrollbarStyle{
@@ -92,8 +92,8 @@ func Scrollbar(th *Theme, state *widget.Scrollbar) ScrollbarStyle {
 			MinorPadding: 2,
 		},
 		Indicator: ScrollIndicatorStyle{
-			MajorMinLen:  th.FingerSize,
-			MinorWidth:   6,
+			MajorMinLen:  unit.Dp(7),
+			MinorWidth:   unit.Dp(7),
 			CornerRadius: 3,
 			Color:        lightFg,
 			HoverColor:   darkFg,
@@ -123,11 +123,6 @@ func (s ScrollbarStyle) Layout(gtx layout.Context, axis layout.Axis, viewportSta
 	gtx.Constraints.Max = gtx.Constraints.Min
 
 	s.Scrollbar.Layout(gtx, axis, viewportStart, viewportEnd)
-
-	// Darken indicator if hovered.
-	if s.Scrollbar.IndicatorHovered() {
-		s.Indicator.Color = s.Indicator.HoverColor
-	}
 
 	return s.layout(gtx, axis, viewportStart, viewportEnd)
 }
@@ -186,7 +181,6 @@ func (s ScrollbarStyle) layout(gtx layout.Context, axis layout.Axis, viewportSta
 					X: indicatorLen,
 					Y: gtx.Dp(s.Indicator.MinorWidth),
 				})
-				radius := gtx.Dp(s.Indicator.CornerRadius)
 
 				// Lay out the indicator.
 				offset := axis.Convert(image.Pt(viewStart, 0))
@@ -195,10 +189,6 @@ func (s ScrollbarStyle) layout(gtx layout.Context, axis layout.Axis, viewportSta
 					Rect: image.Rectangle{
 						Max: indicatorDims,
 					},
-					SW: radius,
-					NW: radius,
-					NE: radius,
-					SE: radius,
 				}.Op(gtx.Ops))
 
 				// Add the indicator pointer hit area.
@@ -234,10 +224,10 @@ type ListStyle struct {
 }
 
 // List constructs a ListStyle using the provided theme and state.
-func List(th *Theme, state *widget.List) ListStyle {
+func List(state *widget.List) ListStyle {
 	return ListStyle{
 		state:          state,
-		ScrollbarStyle: Scrollbar(th, &state.Scrollbar),
+		ScrollbarStyle: Scrollbar(&state.Scrollbar),
 	}
 }
 

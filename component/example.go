@@ -4,9 +4,7 @@ import (
 	"ui/theme"
 	"ui/widget"
 
-	"gioui.org/font/gofont"
 	"gioui.org/layout"
-	"gioui.org/widget/material"
 )
 
 type Example struct {
@@ -25,9 +23,9 @@ func NewExample() Example {
 }
 
 func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
-	th := material.NewTheme(gofont.Collection())
+	//th := material.NewTheme(gofont.Collection())
 
-	return material.List(th, &e.List).Layout(gtx, 9, func(gtx layout.Context, i int) layout.Dimensions {
+	return theme.List(&e.List).Layout(gtx, 9, func(gtx layout.Context, i int) layout.Dimensions {
 		if i == 0 {
 			dim := theme.Button(&e.submitBtn, "Submit").Layout(gtx)
 			return dim
