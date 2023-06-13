@@ -94,7 +94,7 @@ func Scrollbar(state *widget.Scrollbar) ScrollbarStyle {
 		Indicator: ScrollIndicatorStyle{
 			MajorMinLen:  unit.Dp(7),
 			MinorWidth:   unit.Dp(7),
-			CornerRadius: 3,
+			CornerRadius: 1,
 			Color:        lightFg,
 			HoverColor:   darkFg,
 		},
@@ -181,14 +181,17 @@ func (s ScrollbarStyle) layout(gtx layout.Context, axis layout.Axis, viewportSta
 					X: indicatorLen,
 					Y: gtx.Dp(s.Indicator.MinorWidth),
 				})
+				radius := gtx.Dp(s.Indicator.CornerRadius)
 
 				// Lay out the indicator.
 				offset := axis.Convert(image.Pt(viewStart, 0))
 				defer op.Offset(offset).Push(gtx.Ops).Pop()
 				paint.FillShape(gtx.Ops, s.Indicator.Color, clip.RRect{
-					Rect: image.Rectangle{
-						Max: indicatorDims,
-					},
+					Rect: image.Rectangle{Max: indicatorDims},
+					SE:   radius,
+					SW:   radius,
+					NW:   radius,
+					NE:   radius,
 				}.Op(gtx.Ops))
 
 				// Add the indicator pointer hit area.
