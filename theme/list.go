@@ -88,8 +88,8 @@ func Scrollbar(state *widget.Scrollbar) ScrollbarStyle {
 			Color:        Theme.Olive,
 		},
 		Indicator: ScrollIndicatorStyle{
-			MajorMinLen:  unit.Dp(8),
-			MinorWidth:   unit.Dp(8),
+			MajorMinLen:  unit.Dp(7),
+			MinorWidth:   unit.Dp(7),
 			CornerRadius: 1,
 			Color:        Theme.Yellow,
 		},
