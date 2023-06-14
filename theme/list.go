@@ -63,7 +63,7 @@ type ScrollIndicatorStyle struct {
 	MinorWidth unit.Dp
 	// Color and HoverColor are the normal and hovered colors of the scroll
 	// indicator.
-	Color, HoverColor color.NRGBA
+	Color color.NRGBA
 	// CornerRadius is the corner radius of the rectangular indicator. 0
 	// will produce square corners. 0.5*MinorWidth will produce perfectly
 	// round corners.
@@ -80,23 +80,18 @@ type ScrollbarStyle struct {
 // Scrollbar configures the presentation of a scrollbar using the provided
 // theme and state.
 func Scrollbar(state *widget.Scrollbar) ScrollbarStyle {
-	lightFg := Theme.Fg
-	lightFg.A = 150
-	darkFg := Theme.Bg
-	darkFg.A = 200
-
 	return ScrollbarStyle{
 		Scrollbar: state,
 		Track: ScrollTrackStyle{
-			MajorPadding: 2,
-			MinorPadding: 2,
+			MajorPadding: 3,
+			MinorPadding: 3,
+			Color:        Theme.Olive,
 		},
 		Indicator: ScrollIndicatorStyle{
-			MajorMinLen:  unit.Dp(7),
-			MinorWidth:   unit.Dp(7),
+			MajorMinLen:  unit.Dp(8),
+			MinorWidth:   unit.Dp(8),
 			CornerRadius: 1,
-			Color:        lightFg,
-			HoverColor:   darkFg,
+			Color:        Theme.Yellow,
 		},
 	}
 }
