@@ -2,6 +2,9 @@ package widget
 
 import (
 	"errors"
+	"fmt"
+
+	"gioui.org/layout"
 )
 
 // Combo holds combobox state
@@ -26,6 +29,23 @@ func MakeCombo(items []string, hint string) Combo {
 	}
 
 	return c
+}
+
+func (c *Combo) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
+	if c.SelectButton().Clicked() {
+		c.Toggle()
+	}
+
+	for i := 0; i < c.Len(); i++ {
+		if c.Button(i).Clicked() {
+			if err := c.SelectIndex(i); err != nil {
+				fmt.Println("giox error: bad index")
+			}
+			c.Toggle()
+		}
+	}
+
+	return widget(gtx)
 }
 
 // HasSelected returns true if an item is selected

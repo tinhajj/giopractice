@@ -83,12 +83,12 @@ func Scrollbar(state *widget.Scrollbar) ScrollbarStyle {
 	return ScrollbarStyle{
 		Scrollbar: state,
 		Track: ScrollTrackStyle{
-			MajorPadding: 3,
-			MinorPadding: 3,
+			MajorPadding: 5,
+			MinorPadding: 4,
 			Color:        Theme.Olive,
 		},
 		Indicator: ScrollIndicatorStyle{
-			MajorMinLen:  unit.Dp(7),
+			MajorMinLen:  unit.Dp(8),
 			MinorWidth:   unit.Dp(7),
 			CornerRadius: 1,
 			Color:        Theme.Yellow,
