@@ -44,7 +44,7 @@ func draw(w *app.Window) error {
 
 	example2 := component.Example{
 		List:  widget.List{},
-		Combo: widget.MakeCombo([]string{"one", "two", "three"}, "numbers"),
+		Combo: widget.MakeCombo([]string{"one", "two", "extremely long text here", "three"}, "numbers"),
 	}
 	win2 := widget.NewWindow("XQuery 2", f32.Pt(40, 40), example2.Layout)
 

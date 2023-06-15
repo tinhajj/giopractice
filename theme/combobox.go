@@ -2,9 +2,10 @@ package theme
 
 import (
 	"fmt"
+	"image"
 	"ui/widget"
 
-	"gioui.org/layout"
+	"ui/layout"
 )
 
 // ComboStyle holds combobox rendering parameters
@@ -24,6 +25,10 @@ func (c ComboStyle) Layout(gtx layout.Context) layout.Dimensions {
 	return c.w.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		text := fmt.Sprintf("<%s>", c.w.Hint())
 
+		if c.w.HasSelected() {
+			text = fmt.Sprintf("<%s>", c.w.SelectedText())
+		}
+
 		subwidgets := make([]ButtonStyle, 0)
 		subwidgets = append(subwidgets, Button(c.w.SelectButton(), text))
 
@@ -35,14 +40,24 @@ func (c ComboStyle) Layout(gtx layout.Context) layout.Dimensions {
 			}
 		}
 
+		funcs := []layout.Widget{}
+		for _, w := range subwidgets {
+			funcs = append(funcs, w.Layout)
+		}
+		_, dim := layout.Largest(gtx, funcs...)
+
 		rigids := make([]layout.FlexChild, 0)
 		for _, bs := range subwidgets {
 			bs := bs
+			ngtx := gtx
+			ngtx.Constraints = layout.Exact(image.Pt(dim.Size.X, dim.Size.Y))
 			rigids = append(rigids, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-				return bs.Layout(gtx)
+				return bs.Layout(ngtx)
 			}))
 		}
 
-		return layout.Flex{Axis: layout.Vertical}.Layout(gtx, rigids...)
+		return layout.Flex{
+			Axis: layout.Vertical,
+		}.Layout(gtx, rigids...)
 	})
 }
