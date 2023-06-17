@@ -83,13 +83,13 @@ func Scrollbar(state *widget.Scrollbar) ScrollbarStyle {
 	return ScrollbarStyle{
 		Scrollbar: state,
 		Track: ScrollTrackStyle{
-			MajorPadding: 2,
+			MajorPadding: 3,
 			MinorPadding: 2,
 			Color:        Theme.Olive,
 		},
 		Indicator: ScrollIndicatorStyle{
-			MajorMinLen:  unit.Dp(8),
-			MinorWidth:   unit.Dp(7),
+			MajorMinLen:  unit.Dp(3),
+			MinorWidth:   unit.Dp(6),
 			CornerRadius: 1,
 			Color:        Theme.Yellow,
 		},
@@ -237,7 +237,6 @@ func (l ListStyle) Layout(gtx layout.Context, length int, w layout.ListElement) 
 	barWidth := gtx.Dp(l.Width())
 
 	if l.AnchorStrategy == Occupy {
-
 		// Reserve space for the scrollbar using the gtx constraints.
 		max := l.state.Axis.Convert(gtx.Constraints.Max)
 		min := l.state.Axis.Convert(gtx.Constraints.Min)

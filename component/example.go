@@ -4,12 +4,16 @@ import (
 	"ui/theme"
 	"ui/widget"
 
+	"gioui.org/font/gofont"
 	"gioui.org/layout"
+	"gioui.org/widget/material"
 )
 
 type Example struct {
 	List  widget.List
 	Combo widget.Combo
+
+	editor widget.Editor
 
 	submitBtn widget.Clickable
 	cancelBtn widget.Clickable
@@ -24,9 +28,9 @@ func NewExample() Example {
 }
 
 func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
-	//th := material.NewTheme(gofont.Collection())
+	th := material.NewTheme(gofont.Collection())
 
-	return theme.List(&e.List).Layout(gtx, 9, func(gtx layout.Context, i int) layout.Dimensions {
+	return theme.List(&e.List).Layout(gtx, 11, func(gtx layout.Context, i int) layout.Dimensions {
 		if i == 0 {
 			return theme.Button(&e.submitBtn, "Submit").Layout(gtx)
 		} else if i == 1 {
@@ -43,8 +47,12 @@ func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
 			return theme.Checkbox(&e.flipCheckbox, "Flip").Layout(gtx)
 		} else if i == 7 {
 			return layout.Spacer{Width: 60}.Layout(gtx)
-		} else {
+		} else if i == 8 {
 			return theme.Button(&e.cancelBtn, "Cancel").Layout(gtx)
+		} else if i == 9 {
+			return layout.Spacer{Width: 60}.Layout(gtx)
+		} else {
+			return material.Editor(th, &e.editor, "asd").Layout(gtx)
 		}
 	})
 }
