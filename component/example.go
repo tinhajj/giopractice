@@ -13,7 +13,7 @@ type Example struct {
 	List  widget.List
 	Combo widget.Combo
 
-	editor widget.Editor
+	Editor widget.Editor
 
 	submitBtn widget.Clickable
 	cancelBtn widget.Clickable
@@ -52,7 +52,7 @@ func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
 		} else if i == 9 {
 			return layout.Spacer{Width: 60}.Layout(gtx)
 		} else {
-			return material.Editor(th, &e.editor, "asd").Layout(gtx)
+			return material.Editor(th, &e.Editor, "asd").Layout(gtx)
 		}
 	})
 }
