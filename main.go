@@ -36,23 +36,20 @@ func main() {
 func draw(w *app.Window) error {
 	var ops op.Ops
 
-	//example := component.Example{
-	//	List:  widget.List{List: layout.List{Axis: layout.Vertical}},
-	//	Combo: widget.MakeCombo([]string{"one", "two"}, "numbers"),
-	//}
-	//win := widget.NewWindow("XQuery 1", f32.Pt(30, 30), example.Layout)
-
-	example2 := component.Example{
-		List:  widget.List{},
-		Combo: widget.MakeCombo([]string{"one", "two", "extremely long text here", "three"}, "numbers"),
+	example := component.Example{
+		List:  widget.List{List: layout.List{Axis: layout.Vertical}},
+		Combo: widget.MakeCombo([]string{"one", "two"}, "numbers"),
 	}
-	win2 := widget.NewWindow("XQuery 2", f32.Pt(40, 40), example2.Layout)
+	win := widget.NewWindow("XQuery 1", f32.Pt(30, 30), example.Layout)
 
-	//example3 := component.Example{}
-	//win3 := widget.NewWindow("XQuery 3", f32.Pt(80, 80), example3.Layout)
+	// example2 := component.Example{
+	// 	List:  widget.List{},
+	// 	Combo: widget.MakeCombo([]string{"one", "two", "extremely long text here", "three"}, "numbers"),
+	// }
+	// win2 := widget.NewWindow("XQuery 2", f32.Pt(40, 40), example2.Layout)
 
 	canvas := component.Canvas{
-		Windows:  []*widget.Window{win2},
+		Windows:  []*widget.Window{win},
 		GridSize: 0,
 	}
 
@@ -63,9 +60,7 @@ func draw(w *app.Window) error {
 			gtx := layout.NewContext(&ops, e)
 
 			//paint.Fill(gtx.Ops, theme.Theme.Bg)
-
 			//theme.Window(win).Layout(gtx)
-
 			//op.Offset(image.Pt(300, 300)).Add(gtx.Ops)
 
 			canvas.Layout(gtx)

@@ -6,6 +6,7 @@ import (
 	"math"
 
 	"ui/layout"
+	"ui/maths"
 	"ui/widget"
 
 	"gioui.org/io/pointer"
@@ -30,10 +31,19 @@ func fromListPosition(lp layout.Position, elements int, majorAxisSize int) (star
 	visiblePx := float32(majorAxisSize)
 	visibleFraction := visiblePx / lengthPx
 
+	//fmt.Printf("Trailing edge is %d. There are %d total elements. There are %d visible children.  And the visible one is index %d.\n", lp.OffsetLast, elements, lp.Count, lp.First)
+
 	// Compute the location of the beginning of the viewport.
 	viewportStart := (float32(lp.First)*meanElementHeight + listOffsetF) / lengthPx
+	viewportEnd := clamp1(viewportStart + visibleFraction)
 
-	return viewportStart, clamp1(viewportStart + visibleFraction)
+	if lp.First+1+lp.Count == elements {
+		viewportEnd = 1 - maths.Abs(float32(lp.OffsetLast))/visiblePx
+	}
+
+	//fmt.Printf("viewportStart: %f viewportEnd: %f\n", viewportStart, viewportEnd)
+
+	return viewportStart, viewportEnd
 }
 
 // rangeIsScrollable returns whether the viewport described by start and end
@@ -83,13 +93,13 @@ func Scrollbar(state *widget.Scrollbar) ScrollbarStyle {
 	return ScrollbarStyle{
 		Scrollbar: state,
 		Track: ScrollTrackStyle{
-			MajorPadding: 3,
-			MinorPadding: 2,
+			MajorPadding: 1,
+			MinorPadding: 1,
 			Color:        Theme.Olive,
 		},
 		Indicator: ScrollIndicatorStyle{
-			MajorMinLen:  unit.Dp(3),
-			MinorWidth:   unit.Dp(6),
+			MajorMinLen:  unit.Dp(6),
+			MinorWidth:   unit.Dp(10),
 			CornerRadius: 1,
 			Color:        Theme.Yellow,
 		},
