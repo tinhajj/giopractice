@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -31,19 +32,23 @@ func fromListPosition(lp layout.Position, elements int, majorAxisSize int) (star
 	visiblePx := float32(majorAxisSize)
 	visibleFraction := visiblePx / lengthPx
 
-	//fmt.Printf("Trailing edge is %d. There are %d total elements. There are %d visible children.  And the visible one is index %d.\n", lp.OffsetLast, elements, lp.Count, lp.First)
+	fmt.Printf("Trailing edge is %d (%f). There are %d total elements. There are %d visible children.  And the visible one is index %d.\n", lp.OffsetLast, (maths.Abs(float32(lp.OffsetLast)) / visiblePx), elements, lp.Count, lp.First)
 
 	// Compute the location of the beginning of the viewport.
 	viewportStart := (float32(lp.First)*meanElementHeight + listOffsetF) / lengthPx
-	viewportEnd := clamp1(viewportStart + visibleFraction)
+	viewportEnd := viewportStart + visibleFraction
 
 	if lp.First+1+lp.Count == elements {
-		viewportEnd = 1 - maths.Abs(float32(lp.OffsetLast))/visiblePx
+		viewportEnd = 1 - (maths.Abs(float32(lp.OffsetLast)) / visiblePx)
 	}
 
-	//fmt.Printf("viewportStart: %f viewportEnd: %f\n", viewportStart, viewportEnd)
+	if viewportEnd > 1 {
+		viewportEnd = 1 - (maths.Abs(float32(lp.OffsetLast)) / visiblePx)
+	}
 
-	return viewportStart, viewportEnd
+	fmt.Printf("viewportStart: %f viewportEnd: %f\n", viewportStart, viewportEnd)
+
+	return viewportStart, clamp1(viewportEnd)
 }
 
 // rangeIsScrollable returns whether the viewport described by start and end

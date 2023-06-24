@@ -52,6 +52,8 @@ func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
 		} else if i == 9 {
 			return layout.Spacer{Width: 60}.Layout(gtx)
 		} else {
+			//return layout.Spacer{Height: 0, Width: 0}.Layout(gtx)
+			//return layout.Dimensions{}
 			return material.Editor(th, &e.Editor, "asd").Layout(gtx)
 		}
 	})
