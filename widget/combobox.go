@@ -29,7 +29,7 @@ func MakeCombo(items []string, hint string) Combo {
 		expanded:     false,
 		selectButton: Clickable{},
 		buttons:      make([]Clickable, len(items)),
-		keyTag:       3000,
+		keyTag:       3000000000,
 	}
 
 	return c
@@ -41,7 +41,8 @@ func (c *Combo) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensio
 	if c.SelectButton().Clicked() {
 		c.Toggle()
 		fmt.Println("clicked")
-		//key.FocusOp{Tag: c.keyTag}.Add(gtx.Ops)
+		fmt.Println(c.keyTag)
+		key.FocusOp{Tag: c.keyTag}.Add(gtx.Ops)
 	}
 
 	for _, e := range gtx.Events(c.keyTag) {
