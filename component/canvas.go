@@ -111,9 +111,11 @@ func (c *Canvas) Layout(gtx layout.Context) layout.Dimensions {
 
 	for i, w := range c.Windows {
 		if w.Clicked() {
-			op.InvalidateOp{}.Add(gtx.Ops)
 			c.BringIndexedWindowToFront(i)
 		}
+	}
+
+	for _, w := range c.Windows {
 		theme.Window(w).Layout(gtx)
 	}
 

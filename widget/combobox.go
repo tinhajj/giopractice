@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"gioui.org/io/key"
 	"gioui.org/layout"
 )
 
@@ -15,6 +16,8 @@ type Combo struct {
 	expanded     bool
 	selectButton Clickable
 	buttons      []Clickable
+
+	keyTag int
 }
 
 // MakeCombo Creates new combobox widget
@@ -26,14 +29,26 @@ func MakeCombo(items []string, hint string) Combo {
 		expanded:     false,
 		selectButton: Clickable{},
 		buttons:      make([]Clickable, len(items)),
+		keyTag:       3000,
 	}
 
 	return c
 }
 
 func (c *Combo) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
+	keys := key.Set("⏎|Space")
+	key.InputOp{Tag: &c.keyTag, Keys: keys}.Add(gtx.Ops)
 	if c.SelectButton().Clicked() {
 		c.Toggle()
+		fmt.Println("clicked")
+		//key.FocusOp{Tag: c.keyTag}.Add(gtx.Ops)
+	}
+
+	for _, e := range gtx.Events(c.keyTag) {
+		switch e.(type) {
+		case key.FocusEvent:
+			fmt.Println("i got focus")
+		}
 	}
 
 	for i := 0; i < c.Len(); i++ {

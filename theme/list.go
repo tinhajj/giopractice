@@ -1,7 +1,6 @@
 package theme
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -22,33 +21,18 @@ import (
 // in order to do this. The returned values will be in the range [0,1], and
 // start will be less than or equal to end.
 func fromListPosition(lp layout.Position, elements int, majorAxisSize int) (start, end float32) {
-	// Approximate the size of the scrollable content.
-	//lengthPx := float32(lp.Length)
-	//meanElementHeight := lengthPx / float32(elements)
-
 	// Determine how much of the content is visible.
 	listOffsetF := float32(lp.Offset)
+	listOffsetL := float32(lp.OffsetLast)
 	visiblePx := float32(majorAxisSize)
-	//visibleFraction := visiblePx / lengthPx
 
-	//fmt.Printf("Trailing edge is %d (%f). There are %d total elements. There are %d visible children.  And the visible one is index %d.\n", lp.OffsetLast, (maths.Abs(float32(lp.OffsetLast)) / visiblePx), elements, lp.Count, lp.First)
+	first := float32(lp.First)
+	count := float32(lp.Count)
+	elementsF := float32(elements)
 
 	// Compute the location of the beginning of the viewport.
-	//viewportStart := (float32(lp.First)*meanElementHeight + listOffsetF) / lengthPx
-	viewportStart := (float32(lp.First) / float32(elements)) + (float32(listOffsetF) / visiblePx)
-
-	//viewportEnd := viewportStart + visibleFraction
-	viewportEnd := ((float32(lp.First+lp.Count) / float32(elements)) + float32(lp.OffsetLast)/float32(majorAxisSize))
-
-	// if lp.First+1+lp.Count == elements {
-	// 	viewportEnd = 1 - (maths.Abs(float32(lp.OffsetLast)) / visiblePx)
-	// }
-
-	// if viewportEnd > 1 {
-	// 	viewportEnd = 1 - (maths.Abs(float32(lp.OffsetLast)) / visiblePx)
-	// }
-
-	fmt.Printf("viewportStart: %f viewportEnd: %f\n", viewportStart, viewportEnd)
+	viewportStart := (first / elementsF) + (listOffsetF / visiblePx)
+	viewportEnd := ((first + count) / elementsF) + (listOffsetL / visiblePx)
 
 	return viewportStart, clamp1(viewportEnd)
 }
