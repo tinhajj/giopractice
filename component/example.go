@@ -1,6 +1,7 @@
 package component
 
 import (
+	"fmt"
 	"ui/theme"
 	"ui/widget"
 
@@ -32,6 +33,9 @@ func (e *Example) Layout(gtx layout.Context) layout.Dimensions {
 
 	return theme.List(&e.List).Layout(gtx, 11, func(gtx layout.Context, i int) layout.Dimensions {
 		if i == 0 {
+			if e.submitBtn.Clicked() {
+				fmt.Println("submit button clicked")
+			}
 			return theme.Button(&e.submitBtn, "Submit").Layout(gtx)
 		} else if i == 1 {
 			return layout.Spacer{Height: 500, Width: 80}.Layout(gtx)
