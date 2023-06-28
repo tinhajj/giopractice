@@ -36,11 +36,11 @@ func main() {
 func draw(w *app.Window) error {
 	var ops op.Ops
 
-	example := component.Example{
-		List:  widget.List{List: layout.List{Axis: layout.Vertical}},
-		Combo: widget.MakeCombo([]string{"one", "two"}, "numbers"),
-	}
-	win := widget.NewWindow("XQuery 1", f32.Pt(30, 30), example.Layout)
+	//example := component.Example{
+	//	List:  widget.List{List: layout.List{Axis: layout.Vertical}},
+	//	Combo: widget.MakeCombo([]string{"one", "two"}, "numbers"),
+	//}
+	//win := widget.NewWindow("XQuery 1", f32.Pt(30, 30), example.Layout)
 
 	example2 := component.Example{
 		List:   widget.List{},
@@ -50,7 +50,7 @@ func draw(w *app.Window) error {
 	win2 := widget.NewWindow("XQuery 2", f32.Pt(40, 40), example2.Layout)
 
 	canvas := component.Canvas{
-		Windows:  []*widget.Window{win, win2},
+		Windows:  []*widget.Window{win2},
 		GridSize: 0,
 	}
 

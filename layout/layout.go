@@ -11,8 +11,9 @@ func Largest(gtx layout.Context, widgets ...layout.Widget) (int, layout.Dimensio
 	largest := layout.Dimensions{}
 	largestIndex := -1
 
+	m := op.Record(gtx.Ops)
 	for i, w := range widgets {
-		m := op.Record(gtx.Ops)
+		gtx.Queue = nil
 		dim := w(gtx)
 
 		if dim.Size.X > largest.Size.X {
@@ -20,8 +21,8 @@ func Largest(gtx layout.Context, widgets ...layout.Widget) (int, layout.Dimensio
 			largestIndex = i
 		}
 
-		m.Stop()
 	}
+	m.Stop()
 	return largestIndex, largest
 }
 
