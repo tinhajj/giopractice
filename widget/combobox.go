@@ -13,7 +13,7 @@ type Combo struct {
 	hint         string
 	selected     int
 	expanded     bool
-	selectButton *Clickable
+	selectButton Clickable
 	buttons      []Clickable
 
 	keyTag struct{}
@@ -26,7 +26,7 @@ func MakeCombo(items []string, hint string) Combo {
 		hint:         hint,
 		selected:     -1,
 		expanded:     false,
-		selectButton: &Clickable{},
+		selectButton: Clickable{},
 		buttons:      make([]Clickable, len(items)),
 		keyTag:       struct{}{},
 	}
@@ -35,22 +35,9 @@ func MakeCombo(items []string, hint string) Combo {
 }
 
 func (c *Combo) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
-	//keys := key.Set("")
-	//key.InputOp{Tag: &c.keyTag, Keys: keys}.Add(gtx.Ops)
 	if c.SelectButton().Clicked() {
-		fmt.Println("combo clicked")
-		fmt.Println("combo focused?", c.SelectButton().Focused())
-
 		c.Toggle()
-		//key.FocusOp{Tag: &c.keyTag}.Add(gtx.Ops)
 	}
-
-	//for _, e := range gtx.Events(&c.keyTag) {
-	//	switch e := e.(type) {
-	//	case key.FocusEvent:
-	//		fmt.Println(e.Focus)
-	//	}
-	//}
 
 	for i := 0; i < c.Len(); i++ {
 		if c.Button(i).Clicked() {
@@ -102,7 +89,7 @@ func (c *Combo) Item(index int) string {
 
 // SelectButton returns a points to main (open) combobox button
 func (c *Combo) SelectButton() *Clickable {
-	return c.selectButton
+	return &c.selectButton
 }
 
 // Button returns a pointer to correspoding button widget

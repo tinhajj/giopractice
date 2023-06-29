@@ -3,6 +3,7 @@ package theme
 import (
 	"image"
 	"image/color"
+	"ui/widget"
 
 	"gioui.org/font"
 	"gioui.org/layout"
@@ -10,7 +11,6 @@ import (
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/unit"
-	"gioui.org/widget"
 )
 
 func Button(clickable *widget.Clickable, label string) ButtonStyle {

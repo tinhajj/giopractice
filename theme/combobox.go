@@ -51,12 +51,11 @@ func (c ComboStyle) Layout(gtx layout.Context) layout.Dimensions {
 		for _, w := range components {
 			funcs = append(funcs, w)
 		}
-		//_, dim := layout.Largest(gtx, funcs...)
-		layout.Largest(gtx, funcs...)
+
+		_, dim := layout.Largest(gtx, funcs...)
 
 		ngtx := gtx
-		//ngtx.Constraints = layout.Exact(image.Pt(dim.Size.X, dim.Size.Y))
-		ngtx.Constraints = layout.Exact(image.Pt(100, 50))
+		ngtx.Constraints = layout.Exact(image.Pt(dim.Size.X, dim.Size.Y))
 
 		btn := layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 			return Button(c.w.SelectButton(), text).Layout(ngtx)

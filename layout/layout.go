@@ -2,6 +2,7 @@ package layout
 
 import (
 	"image"
+	"ui/eventful"
 
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -11,16 +12,15 @@ func Largest(gtx layout.Context, widgets ...layout.Widget) (int, layout.Dimensio
 	largest := layout.Dimensions{}
 	largestIndex := -1
 
+	gtx.Queue = eventful.DummyQueue()
 	m := op.Record(gtx.Ops)
 	for i, w := range widgets {
-		gtx.Queue = nil
 		dim := w(gtx)
 
 		if dim.Size.X > largest.Size.X {
 			largest = dim
 			largestIndex = i
 		}
-
 	}
 	m.Stop()
 	return largestIndex, largest
