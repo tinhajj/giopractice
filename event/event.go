@@ -1,4 +1,4 @@
-package eventful
+package event
 
 import "gioui.org/io/event"
 

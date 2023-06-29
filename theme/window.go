@@ -2,7 +2,6 @@ package theme
 
 import (
 	"image"
-	"image/color"
 	"ui/widget"
 
 	"gioui.org/layout"
@@ -25,7 +24,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 	return ws.Window.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return widget.OuterBorder{
 			Border: widget.Border{
-				Color:        color.NRGBA{A: 255, R: 85, G: 170, B: 170},
+				Color:        Theme.Teal,
 				CornerRadius: 0,
 				Width:        unit.Dp(1),
 			},
@@ -42,7 +41,7 @@ func (ws WindowStyle) Layout(gtx layout.Context) layout.Dimensions {
 
 			title := layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 				return ws.Window.TitleBar(gtx, func(gtx layout.Context) layout.Dimensions {
-					bg := widget.Background{Color: color.NRGBA{R: 234, G: 255, B: 255, A: 255}}
+					bg := widget.Background{Color: Theme.Teal100}
 					return bg.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 						return layout.UniformInset(unit.Dp(2)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 							return Label(gtx, Theme.TextSize, ws.Window.Title)

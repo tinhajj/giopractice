@@ -28,6 +28,7 @@ type Canvas struct {
 
 func (c *Canvas) Layout(gtx layout.Context) layout.Dimensions {
 	gridSize := c.GridSize
+	// Default grid size is 48
 	if gridSize == 0 {
 		gridSize = 48
 	}
@@ -51,7 +52,7 @@ func (c *Canvas) Layout(gtx layout.Context) layout.Dimensions {
 
 	var path clip.Path
 
-	col := theme.Theme.LightGray
+	col := theme.Theme.LightGray200
 	col.A = 30
 
 	// Vertical Line
@@ -111,7 +112,7 @@ func (c *Canvas) Layout(gtx layout.Context) layout.Dimensions {
 
 	for i, w := range c.Windows {
 		if w.Clicked() {
-			c.BringIndexedWindowToFront(i)
+			c.BringWindowToFront(i)
 		}
 	}
 
@@ -124,14 +125,14 @@ func (c *Canvas) Layout(gtx layout.Context) layout.Dimensions {
 	}
 }
 
-// BringIndexedWindowToFront paints the given window last so it will show on top of all other windows
-func (c *Canvas) BringIndexedWindowToFront(i int) {
-	if i < 0 || i >= len(c.Windows) {
+// BringWindowToFront paints the given window last so it will show on top of all other windows
+func (c *Canvas) BringWindowToFront(index int) {
+	if index < 0 || index >= len(c.Windows) {
 		return
 	}
 
-	front := c.Windows[i]
-	windows := append(c.Windows[:i], c.Windows[i+1:]...)
+	front := c.Windows[index]
+	windows := append(c.Windows[:index], c.Windows[index+1:]...)
 	c.Windows = append(windows, front)
 
 	return

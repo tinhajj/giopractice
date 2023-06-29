@@ -2,7 +2,7 @@ package layout
 
 import (
 	"image"
-	"ui/eventful"
+	"ui/event"
 
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -12,7 +12,7 @@ func Largest(gtx layout.Context, widgets ...layout.Widget) (int, layout.Dimensio
 	largest := layout.Dimensions{}
 	largestIndex := -1
 
-	gtx.Queue = eventful.DummyQueue()
+	gtx.Queue = event.DummyQueue()
 	m := op.Record(gtx.Ops)
 	for i, w := range widgets {
 		dim := w(gtx)

@@ -19,8 +19,8 @@ type Combo struct {
 	keyTag struct{}
 }
 
-// MakeCombo Creates new combobox widget
-func MakeCombo(items []string, hint string) Combo {
+// NewCombo Creates new combobox widget
+func NewCombo(items []string, hint string) Combo {
 	c := Combo{
 		items:        items,
 		hint:         hint,

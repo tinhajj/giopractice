@@ -1,3 +1,5 @@
+// COPYOF:  https://git.sr.ht/~eliasnaur/gio/tree/main/item/widget/material/list.go
+// CHANGES: fractional scroll bar sizing instead of using averages in fromListPosition(), uses our theme's colors.
 package theme
 
 import (

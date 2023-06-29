@@ -163,7 +163,6 @@ func (w *Window) TitleBar(gtx layout.Context, widget layout.Widget) layout.Dimen
 		defer op.Offset(w.offset.Round().Mul(-1)).Push(gtx.Ops).Pop()
 	}
 	defer clip.Rect{Max: dims.Size}.Push(gtx.Ops).Pop()
-	//paint.Fill(gtx.Ops, color.NRGBA{G: 255, A: 100})
 	w.titleDrag.Add(gtx.Ops)
 	return dims
 }

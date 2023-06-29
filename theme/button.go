@@ -36,7 +36,7 @@ func (b ButtonStyle) Layout(gtx layout.Context) layout.Dimensions {
 			var c color.NRGBA
 
 			if b.Button.Pressed() {
-				c = color.NRGBA{R: 235, G: 235, B: 235, A: 255}
+				c = Theme.LightGray100
 			} else {
 				c = Theme.White
 			}
