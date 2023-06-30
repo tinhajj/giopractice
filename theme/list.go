@@ -1,5 +1,5 @@
 // COPYOF:  https://git.sr.ht/~eliasnaur/gio/tree/main/item/widget/material/list.go
-// CHANGES: fractional scroll bar sizing instead of using averages in fromListPosition(), uses our theme's colors.
+// CHANGES: uses our theme's colors.
 package theme
 
 import (
@@ -23,20 +23,40 @@ import (
 // in order to do this. The returned values will be in the range [0,1], and
 // start will be less than or equal to end.
 func fromListPosition(lp layout.Position, elements int, majorAxisSize int) (start, end float32) {
+	// Approximate the size of the scrollable content.
+	lengthEstPx := float32(lp.Length)
+	elementLenEstPx := lengthEstPx / float32(elements)
+
 	// Determine how much of the content is visible.
 	listOffsetF := float32(lp.Offset)
 	listOffsetL := float32(lp.OffsetLast)
+
+	// Compute the location of the beginning of the viewport using estimated element size and known
+	// pixel offsets.
+	viewportStart := clamp1((float32(lp.First)*elementLenEstPx + listOffsetF) / lengthEstPx)
+	viewportEnd := clamp1((float32(lp.First+lp.Count)*elementLenEstPx + listOffsetL) / lengthEstPx)
+	viewportFraction := viewportEnd - viewportStart
+
+	// Compute the expected visible proportion of the list content based solely on the ratio
+	// of the visible size and the estimated total size.
 	visiblePx := float32(majorAxisSize)
+	visibleFraction := visiblePx / lengthEstPx
 
-	first := float32(lp.First)
-	count := float32(lp.Count)
-	elementsF := float32(elements)
+	// Compute the error between the two methods of determining the viewport and diffuse the
+	// error on either end of the viewport based on how close we are to each end.
+	err := visibleFraction - viewportFraction
+	adjStart := viewportStart
+	adjEnd := viewportEnd
+	if viewportFraction < 1 {
+		startShare := viewportStart / (1 - viewportFraction)
+		endShare := (1 - viewportEnd) / (1 - viewportFraction)
+		startErr := startShare * err
+		endErr := endShare * err
 
-	// Compute the location of the beginning of the viewport.
-	viewportStart := (first / elementsF) + (listOffsetF / visiblePx)
-	viewportEnd := ((first + count) / elementsF) + (listOffsetL / visiblePx)
-
-	return viewportStart, clamp1(viewportEnd)
+		adjStart -= startErr
+		adjEnd += endErr
+	}
+	return adjStart, adjEnd
 }
 
 // rangeIsScrollable returns whether the viewport described by start and end
